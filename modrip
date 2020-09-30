@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+
+import argparse
+from pathlib import Path
+from struct import *
+
+def bytes_to_decimal(bytes):
+  return int(bytes.hex(), 16)
+
+def main():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('mod_file', type=Path)
+  args = parser.parse_args()
+  with open(args.mod_file, 'rb') as file:
+    # Module Title
+    print(file.read(20))
+    samples = {}
+    for x in range(31):
+      print("SAMPLE " + str(x + 1))
+      # Sample Name
+      print(file.read(22))
+      # Sample length
+      print(bytes_to_decimal(file.read(2)))
+      # Finetune (-8 to 7)
+      print(bytes_to_decimal(file.read(1)))
+      # Volume (0 to 64)
+      print(bytes_to_decimal(file.read(1)))
+      # Start of sample repeat offset
+      print(bytes_to_decimal(file.read(2)))
+      # Length of sample repeat
+      print(bytes_to_decimal(file.read(2)))
+      print()
+
+if __name__ == '__main__':
+  main()
