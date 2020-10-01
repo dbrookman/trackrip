@@ -5,6 +5,23 @@ import argparse
 from pathlib import Path
 import wave
 
+def get_sample_data(sample_bytes):
+    """Returns a dictionary of the sample's data extracted from sample_bytes"""
+    assert(len(sample_bytes) == 30)
+    sample = {}
+    sample["name"] = sample_bytes[:22].strip(b'\x00\x0e').decode('utf-8').strip()
+    sample["length"] = int.from_bytes(sample_bytes[22:24], 'big') * 2
+    finetune_value = int.from_bytes(sample_bytes[24:25], 'big') & 0x0F
+    # convert from base-16 to a signed nibble (-8..7)
+    if finetune_value > 7:
+        sample["finetune"] = finetune_value - 16
+    else:
+        sample["finetune"] = finetune_value
+    sample["volume"] = int.from_bytes(sample_bytes[25:26], 'big')
+    sample["loop_offset"] = int.from_bytes(sample_bytes[26:28], 'big')
+    sample["loop_length"] = int.from_bytes(sample_bytes[28:30], 'big')
+    return sample
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('mod_file', type=Path)
@@ -16,18 +33,7 @@ def main():
         print("TITLE: " + mod_file["title"])
         mod_file["samples"] = []
         for i in range(31):
-            sample = {}
-            sample["name"] = file.read(22).strip(b'\x00\x0e').decode('utf-8').strip()
-            sample["length"] = int.from_bytes(file.read(2), 'big') * 2
-            finetune_value = int.from_bytes(file.read(1), 'big') & 0x0F
-            # convert from base-16 to a signed nibble (-8..7)
-            if finetune_value > 7:
-                sample["finetune"] = finetune_value - 16
-            else:
-                sample["finetune"] = finetune_value
-            sample["volume"] = int.from_bytes(file.read(1), 'big')
-            sample["loop_offset"] = int.from_bytes(file.read(2), 'big')
-            sample["loop_length"] = int.from_bytes(file.read(2), 'big')
+            sample = get_sample_data(file.read(30))
             mod_file["samples"].append(sample)
         file.read(1) # number of song positions
         file.read(1) # this byte can be ignored
