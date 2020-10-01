@@ -4,9 +4,6 @@ import argparse
 from pathlib import Path
 import wave
 
-def bytes_to_decimal(bytes):
-    return int(bytes.hex(), 16)
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('mod_file', type=Path)
@@ -18,13 +15,13 @@ def main():
         for i in range(31):
             sample = {}
             sample["name"] = file.read(22).decode('utf-8')
-            sample["length"] = bytes_to_decimal(file.read(2)) * 2
-            sample["finetune"] = bytes_to_decimal(file.read(1))
-            sample["volume"] = bytes_to_decimal(file.read(1))
-            sample["loop_offset"] = bytes_to_decimal(file.read(2))
-            sample["loop_length"] = bytes_to_decimal(file.read(2))
+            sample["length"] = int.from_bytes(file.read(2), 'big') * 2
+            sample["finetune"] = int.from_bytes(file.read(1), 'big')
+            sample["volume"] = int.from_bytes(file.read(1), 'big')
+            sample["loop_offset"] = int.from_bytes(file.read(2), 'big')
+            sample["loop_length"] = int.from_bytes(file.read(2), 'big')
             mod_file["samples"].append(sample)
-        mod_file["number_of_patterns"] = bytes_to_decimal(file.read(1))
+        mod_file["number_of_patterns"] = int.from_bytes(file.read(1), 'big')
         file.read(1) # this byte can be ignored
         file.read(128) # we don't need the pattern table
         file.read(4) # these bytes can be ignored
