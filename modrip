@@ -17,7 +17,7 @@ def main():
             sample = {}
             sample["name"] = file.read(22).strip(b'\x00\x0e').decode('utf-8').strip()
             sample["length"] = int.from_bytes(file.read(2), 'big') * 2
-            sample["finetune"] = int.from_bytes(file.read(1), 'big')
+            sample["finetune"] = hex(int.from_bytes(file.read(1), 'big') & 0x0F)
             sample["volume"] = int.from_bytes(file.read(1), 'big')
             sample["loop_offset"] = int.from_bytes(file.read(2), 'big')
             sample["loop_length"] = int.from_bytes(file.read(2), 'big')
