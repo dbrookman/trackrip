@@ -30,7 +30,7 @@ def main():
             if pattern > mod_file["number_of_patterns"]:
                 mod_file["number_of_patterns"] = pattern
         file.read(4) # these bytes can be ignored
-        for i in range(mod_file["number_of_patterns"]): # skip pattern data
+        for i in range(mod_file["number_of_patterns"] + 1): # skip pattern data
             file.read(1024)
         for i in range(len(mod_file["samples"])):
             sample = mod_file["samples"][i]
