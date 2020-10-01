@@ -43,6 +43,10 @@ def main():
                 sample_file_name = str(i)
                 if sample["name"] != "":
                     sample_file_name += " - " + sample["name"]
+                keepcharacters = (' ','.','_','-')
+                sample_file_name = "".join(c for c in sample_file_name if
+                                           c.isalnum() or c in
+                                           keepcharacters).rstrip()
                 print("[Exporting Sample] " + sample_file_name)
                 out = wave.open(sample_file_name + ".wav", "wb")
                 out.setnchannels(1)
