@@ -40,12 +40,11 @@ def main():
         for i in range(len(mod_file["samples"])):
             sample = mod_file["samples"][i]
             if sample["length"] > 0:
+                sample_file_name = str(i)
                 if sample["name"] != "":
-                    sample_file_name = str(i) + " - " + sample["name"] + ".wav"
-                else:
-                    sample_file_name = str(i) + ".wav"
-                print("Exporting " + sample_file_name)
-                out = wave.open(sample_file_name, "wb")
+                    sample_file_name += " - " + sample["name"]
+                print("[Exporting Sample] " + sample_file_name)
+                out = wave.open(sample_file_name + ".wav", "wb")
                 out.setnchannels(1)
                 out.setsampwidth(2)
                 # Amiga Paula clock rate closest to C at 8372Hz
