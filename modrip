@@ -38,16 +38,16 @@ def main():
                 mod_file["number_of_patterns"] = pattern
         identifier = file.read(4) # these bytes can be ignored
         mod_file["number_of_channels"] = 0
-        if identifier == b'M.K.' or b'M!K!' or b'FLT4':
+        if identifier in [b'M.K.', b'M!K!', b'FLT4']:
             mod_file["number_of_channels"] = 4
-        elif identifier == b'6CHN':
+        elif identifier in [b'6CHN']:
             mod_file["number_of_channels"] = 6
-        elif identifier == b'8CHN' or b'CD81' or b'OKTA' or b'OCTA' or b'FLT8':
+        elif identifier in [b'8CHN', b'CD81', b'OKTA', b'OCTA', b'FLT8']:
             mod_file["number_of_channels"] = 8
-        elif identifier == b'2CHN':
+        elif identifier in [b'2CHN']:
             mod_file["number_of_channels"] = 2
         assert(mod_file["number_of_channels"] > 0)
-        print(str(mod_file["number_of_channels"]) + " channels")
+        print(str(identifier) + " - " + str(mod_file["number_of_channels"]) + " channels")
         for i in range(mod_file["number_of_patterns"] + 1): # skip pattern data
             file.read(256 * mod_file["number_of_channels"])
         for i in range(len(mod_file["samples"])):
