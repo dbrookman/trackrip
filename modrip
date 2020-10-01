@@ -21,9 +21,13 @@ def main():
             sample["loop_offset"] = int.from_bytes(file.read(2), 'big')
             sample["loop_length"] = int.from_bytes(file.read(2), 'big')
             mod_file["samples"].append(sample)
-        mod_file["number_of_patterns"] = int.from_bytes(file.read(1), 'big')
+        file.read(1) # number of song positions
         file.read(1) # this byte can be ignored
-        file.read(128) # we don't need the pattern table
+        mod_file["number_of_patterns"] = 0
+        for i in range(128):
+            pattern = int.from_bytes(file.read(1), 'big')
+            if pattern > mod_file["number_of_patterns"]:
+                mod_file["number_of_patterns"] = pattern
         file.read(4) # these bytes can be ignored
         for i in range(mod_file["number_of_patterns"]): # skip pattern data
             file.read(1024)
