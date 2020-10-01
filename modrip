@@ -14,7 +14,7 @@ def main():
         mod_file["samples"] = []
         for i in range(31):
             sample = {}
-            sample["name"] = file.read(22).decode('utf-8')
+            sample["name"] = file.read(22).strip(b'\0').decode('utf-8')
             sample["length"] = int.from_bytes(file.read(2), 'big') * 2
             sample["finetune"] = int.from_bytes(file.read(1), 'big')
             sample["volume"] = int.from_bytes(file.read(1), 'big')
@@ -33,8 +33,11 @@ def main():
             file.read(1024)
         for i in range(len(mod_file["samples"])):
             sample = mod_file["samples"][i]
-            if sample['length'] > 0:
-                with wave.open(str(i) + ".wav", "wb") as out_file:
+            if sample["length"] > 0:
+                sample_file_name = str(i) + " - " + sample["name"] + ".wav"
+                if not sample["name"]:
+                    sample_file_name = str(i) + ".wav"
+                with wave.open(sample_file_name, "wb") as out_file:
                     out_file.setnchannels(1)
                     out_file.setsampwidth(2)
                     out_file.setframerate(44100)
