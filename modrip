@@ -34,9 +34,17 @@ def main():
             pattern = int.from_bytes(file.read(1), 'big')
             if pattern > mod_file["number_of_patterns"]:
                 mod_file["number_of_patterns"] = pattern
-        file.read(4) # these bytes can be ignored
+        identifier = file.read(4) # these bytes can be ignored
+        mod_file["number_of_channels"] = 4
+        if identifier == b'M.K.':
+            mod_file["number_of_channels"] = 4
+        elif identifier == b'6CHN':
+            mod_file["number_of_channels"] = 6
+        elif identifier == b'8CHN':
+            mod_file["number_of_channels"] = 8
+        print(str(mod_file["number_of_channels"]) + " channels")
         for i in range(mod_file["number_of_patterns"] + 1): # skip pattern data
-            file.read(1024)
+            file.read(256 * mod_file["number_of_channels"])
         for i in range(len(mod_file["samples"])):
             sample = mod_file["samples"][i]
             if sample["length"] > 0:
