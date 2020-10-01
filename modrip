@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Rips all samples containd by a specified MOD format music file to WAV."""
 
 import argparse
 from pathlib import Path
