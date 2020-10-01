@@ -10,8 +10,10 @@ def main():
     parser.add_argument('mod_file', type=Path)
     args = parser.parse_args()
     with open(args.mod_file, 'rb') as file:
+        print(args.mod_file)
         mod_file = {}
         mod_file["title"] = file.read(20).decode('utf-8')
+        print("TITLE: " + mod_file["title"])
         mod_file["samples"] = []
         for i in range(31):
             sample = {}
