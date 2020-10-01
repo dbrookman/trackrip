@@ -45,8 +45,6 @@ def main():
                 else:
                     sample_file_name = str(i) + ".wav"
                 print("Exporting " + sample_file_name)
-                if not sample["name"]:
-                    sample_file_name = str(i) + ".wav"
                 out = wave.open(sample_file_name, "wb")
                 out.setnchannels(1)
                 out.setsampwidth(2)
