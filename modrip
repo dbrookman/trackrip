@@ -2,6 +2,7 @@
 
 import argparse
 from pathlib import Path
+import wave
 
 def bytes_to_decimal(bytes):
     return int(bytes.hex(), 16)
@@ -11,8 +12,10 @@ def main():
     parser.add_argument('mod_file', type=Path)
     args = parser.parse_args()
     with open(args.mod_file, 'rb') as file:
-        mod_file = {"title": file.read(20).decode('utf-8'), "samples": []}
-        for x in range(31):
+        mod_file = {}
+        mod_file["title"] = file.read(20).decode('utf-8')
+        mod_file["samples"] = []
+        for i in range(31):
             sample = {}
             sample["name"] = file.read(22).decode('utf-8')
             sample["length"] = bytes_to_decimal(file.read(2))
@@ -21,10 +24,21 @@ def main():
             sample["loop_offset"] = bytes_to_decimal(file.read(2))
             sample["loop_length"] = bytes_to_decimal(file.read(2))
             mod_file["samples"].append(sample)
-        print(mod_file["title"])
-        for sample in mod_file["samples"]:
-            print(sample["name"] + " " + str(sample["length"]))
-        print(bytes_to_decimal(file.read(1)))
+        mod_file["number_of_patterns"] = bytes_to_decimal(file.read(1))
+        file.read(1) # this byte can be ignored
+        file.read(128) # we don't need the pattern table
+        file.read(4) # these bytes can be ignored
+        for i in range(mod_file["number_of_patterns"]): # skip pattern data
+            file.read(1024)
+        for i in range(len(mod_file["samples"])):
+            sample = mod_file["samples"][i]
+            if sample['length'] > 0:
+                with wave.open(str(i) + ".wav", "wb") as out_file:
+                    out_file.setnchannels(1)
+                    out_file.setsampwidth(2)
+                    out_file.setframerate(44100)
+                    out_file.writeframes(file.read(sample["length"]))
+
 
 if __name__ == '__main__':
     main()
