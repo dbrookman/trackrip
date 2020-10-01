@@ -38,12 +38,13 @@ def main():
                 sample_file_name = str(i) + " - " + sample["name"] + ".wav"
                 if not sample["name"]:
                     sample_file_name = str(i) + ".wav"
-                with wave.open(sample_file_name, "wb") as out_file:
-                    out_file.setnchannels(1)
-                    out_file.setsampwidth(2)
-                    # Amiga Paula clock rate closest to C at 8372Hz
-                    out_file.setframerate(8363)
-                    out_file.writeframes(file.read(sample["length"]))
+                out = wave.open(sample_file_name, "wb")
+                out.setnchannels(1)
+                out.setsampwidth(2)
+                # Amiga Paula clock rate closest to C at 8372Hz
+                out.setframerate(8363)
+                out.writeframes(file.read(sample["length"]))
+                out.close()
 
 
 if __name__ == '__main__':
