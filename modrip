@@ -18,7 +18,7 @@ def main():
         for i in range(31):
             sample = {}
             sample["name"] = file.read(22).decode('utf-8')
-            sample["length"] = bytes_to_decimal(file.read(2))
+            sample["length"] = bytes_to_decimal(file.read(2)) * 2
             sample["finetune"] = bytes_to_decimal(file.read(1))
             sample["volume"] = bytes_to_decimal(file.read(1))
             sample["loop_offset"] = bytes_to_decimal(file.read(2))
