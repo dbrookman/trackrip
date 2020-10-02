@@ -33,7 +33,7 @@ def get_last_pattern(pattern_table_bytes) -> int:
 
 def get_number_of_channels(identifier_bytes) -> int:
     """Returns the number of channels based on identifier_bytes."""
-    number_of_channels = 0
+    number_of_channels = 4
     if identifier_bytes in [b"M.K.", b"M!K!", b"FLT4"]:
         number_of_channels = 4
     elif identifier_bytes in [b"6CHN"]:
@@ -42,9 +42,6 @@ def get_number_of_channels(identifier_bytes) -> int:
         number_of_channels = 8
     elif identifier_bytes in [b"2CHN"]:
         number_of_channels = 2
-    assert number_of_channels > 0, "Identifier " \
-                                    + str(identifier_bytes) \
-                                    + " is currently unsupported."
     return number_of_channels
 
 def main():
@@ -53,20 +50,31 @@ def main():
     parser.add_argument("mod_file", type=Path)
     args = parser.parse_args()
     with open(args.mod_file, "rb") as file:
-        print(args.mod_file)
         mod_file = {}
+        print(args.mod_file)
+        file.seek(1080)
+        identifier = file.read(4)
+        has_alpha = []
+        for char in identifier:
+            has_alpha.append(bytes([char]).isalpha())
+        if any(has_alpha):
+            mod_file["sample_count"] = 31
+        else:
+            mod_file["sample_count"] = 15
+        mod_file["number_of_channels"] = get_number_of_channels(identifier)
+        print(str(identifier) + " - " + str(mod_file["number_of_channels"]) \
+              + " channels" + " / " + str(mod_file["sample_count"]) \
+              + " samples")
+        file.seek(0)
         mod_file["title"] = file.read(20).decode("ascii")
         print("TITLE: " + mod_file["title"])
         mod_file["samples"] = []
-        for i in range(31):
+        for i in range(mod_file["sample_count"]):
             sample = get_sample_data(file.read(30))
             mod_file["samples"].append(sample)
         file.read(1) # number of song positions
         file.read(1) # this byte can be ignored
         mod_file["number_of_patterns"] = get_last_pattern(file.read(128))
-        identifier = file.read(4)
-        mod_file["number_of_channels"] = get_number_of_channels(identifier)
-        print(str(identifier) + " - " + str(mod_file["number_of_channels"]) + " channels")
         for i in range(mod_file["number_of_patterns"] + 1): # skip pattern data
             file.read(256 * mod_file["number_of_channels"])
         for i in range(len(mod_file["samples"])):
