@@ -22,6 +22,19 @@ def get_sample_data(sample_bytes):
     sample["loop_length"] = int.from_bytes(sample_bytes[28:30], 'big')
     return sample
 
+def get_number_of_channels(identifier):
+    number_of_channels = 0
+    if identifier in [b'M.K.', b'M!K!', b'FLT4']:
+        number_of_channels = 4
+    elif identifier in [b'6CHN']:
+        number_of_channels = 6
+    elif identifier in [b'8CHN', b'CD81', b'OKTA', b'OCTA', b'FLT8']:
+        number_of_channels = 8
+    elif identifier in [b'2CHN']:
+        number_of_channels = 2
+    assert(number_of_channels > 0)
+    return number_of_channels
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('mod_file', type=Path)
@@ -42,17 +55,8 @@ def main():
             pattern = int.from_bytes(file.read(1), 'big')
             if pattern > mod_file["number_of_patterns"]:
                 mod_file["number_of_patterns"] = pattern
-        identifier = file.read(4) # these bytes can be ignored
-        mod_file["number_of_channels"] = 0
-        if identifier in [b'M.K.', b'M!K!', b'FLT4']:
-            mod_file["number_of_channels"] = 4
-        elif identifier in [b'6CHN']:
-            mod_file["number_of_channels"] = 6
-        elif identifier in [b'8CHN', b'CD81', b'OKTA', b'OCTA', b'FLT8']:
-            mod_file["number_of_channels"] = 8
-        elif identifier in [b'2CHN']:
-            mod_file["number_of_channels"] = 2
-        assert(mod_file["number_of_channels"] > 0)
+        identifier = file.read(4)
+        mod_file["number_of_channels"] = get_number_of_channels(identifier)
         print(str(identifier) + " - " + str(mod_file["number_of_channels"]) + " channels")
         for i in range(mod_file["number_of_patterns"] + 1): # skip pattern data
             file.read(256 * mod_file["number_of_channels"])
