@@ -16,6 +16,10 @@ class ProtrackerMOD:
         pattern_count = self.get_last_pattern(self.file.read(128))
         for i in range(pattern_count + 1): # skip pattern data
             self.file.read(256 * self.get_channel_count())
+        for i, _ in enumerate(self.samples):
+            sample = self.samples[i]
+            if sample["length"] > 0:
+                self.samples[i]["data"] = file.read(sample["length"])
 
     def get_sample_count(self) -> int:
         """Returns the # of samples present."""

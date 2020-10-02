@@ -16,8 +16,8 @@ def main():
         print(args.mod_file)
         mod_data = ProtrackerMOD(file)
 
-        for i in range(len(mod_data.samples)):
-            sample = mod_data.samples[i]
+        for i, sample in enumerate(mod_data.samples):
+            sample_file_name = ""
             if sample["length"] > 0:
                 sample_file_name = str(i)
                 if sample["name"] != "":
@@ -32,7 +32,7 @@ def main():
                 out.setsampwidth(2)
                 # Amiga Paula clock rate closest to C at 8372Hz
                 out.setframerate(8363)
-                out.writeframes(file.read(sample["length"]))
+                out.writeframes(sample["data"])
                 out.close()
 
 
