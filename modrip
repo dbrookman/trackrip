@@ -9,7 +9,7 @@ def get_sample_data(sample_bytes) -> dict:
     """Returns a dictionary of the sample's data extracted from sample_bytes."""
     assert len(sample_bytes) == 30, "Sample data should be 30 bytes."
     sample = {}
-    sample["name"] = sample_bytes[:22].strip(b"\x00\x0e").decode("utf-8").strip()
+    sample["name"] = sample_bytes[:22].strip(b"\x00\x0e").decode("ascii").strip()
     sample["length"] = int.from_bytes(sample_bytes[22:24], "big") * 2
     finetune_value = int.from_bytes(sample_bytes[24:25], "big") & 0x0F
     # convert from base-16 to a signed nibble (-8..7)
@@ -55,7 +55,7 @@ def main():
     with open(args.mod_file, "rb") as file:
         print(args.mod_file)
         mod_file = {}
-        mod_file["title"] = file.read(20).decode("utf-8")
+        mod_file["title"] = file.read(20).decode("ascii")
         print("TITLE: " + mod_file["title"])
         mod_file["samples"] = []
         for i in range(31):
