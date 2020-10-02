@@ -4,45 +4,8 @@
 import argparse
 from pathlib import Path
 import wave
+from formats.mod import ProtrackerMOD
 
-def get_sample_data(sample_bytes) -> dict:
-    """Returns a dictionary of the sample's data extracted from sample_bytes."""
-    assert len(sample_bytes) == 30, "Sample data should be 30 bytes."
-    sample = {}
-    sample["name"] = sample_bytes[:22].strip(b"\x00\x0e").decode("ascii").strip()
-    sample["length"] = int.from_bytes(sample_bytes[22:24], "big") * 2
-    finetune_value = int.from_bytes(sample_bytes[24:25], "big") & 0x0F
-    # convert from base-16 to a signed nibble (-8..7)
-    if finetune_value > 7:
-        sample["finetune"] = finetune_value - 16
-    else:
-        sample["finetune"] = finetune_value
-    sample["volume"] = int.from_bytes(sample_bytes[25:26], "big")
-    sample["loop_offset"] = int.from_bytes(sample_bytes[26:28], "big")
-    sample["loop_length"] = int.from_bytes(sample_bytes[28:30], "big")
-    return sample
-
-def get_last_pattern(pattern_table_bytes) -> int:
-    """Returns the highest pattern in pattern_table_bytes."""
-    last_pattern = 0
-    for i in range(128):
-        pattern = pattern_table_bytes[i]
-        if pattern > last_pattern:
-            last_pattern = pattern
-    return last_pattern
-
-def get_number_of_channels(identifier_bytes) -> int:
-    """Returns the number of channels based on identifier_bytes."""
-    number_of_channels = 4
-    if identifier_bytes in [b"M.K.", b"M!K!", b"FLT4"]:
-        number_of_channels = 4
-    elif identifier_bytes in [b"6CHN"]:
-        number_of_channels = 6
-    elif identifier_bytes in [b"8CHN", b"CD81", b"OKTA", b"OCTA", b"FLT8"]:
-        number_of_channels = 8
-    elif identifier_bytes in [b"2CHN"]:
-        number_of_channels = 2
-    return number_of_channels
 
 def main():
     """Parses, opens and extracts samples from a MOD file."""
@@ -50,35 +13,11 @@ def main():
     parser.add_argument("mod_file", type=Path)
     args = parser.parse_args()
     with open(args.mod_file, "rb") as file:
-        mod_file = {}
         print(args.mod_file)
-        file.seek(1080)
-        identifier = file.read(4)
-        has_alpha = []
-        for char in identifier:
-            has_alpha.append(bytes([char]).isalpha())
-        if any(has_alpha):
-            mod_file["sample_count"] = 31
-        else:
-            mod_file["sample_count"] = 15
-        mod_file["number_of_channels"] = get_number_of_channels(identifier)
-        print(str(identifier) + " - " + str(mod_file["number_of_channels"]) \
-              + " channels" + " / " + str(mod_file["sample_count"]) \
-              + " samples")
-        file.seek(0)
-        mod_file["title"] = file.read(20).decode("ascii")
-        print("TITLE: " + mod_file["title"])
-        mod_file["samples"] = []
-        for i in range(mod_file["sample_count"]):
-            sample = get_sample_data(file.read(30))
-            mod_file["samples"].append(sample)
-        file.read(1) # number of song positions
-        file.read(1) # this byte can be ignored
-        mod_file["number_of_patterns"] = get_last_pattern(file.read(128))
-        for i in range(mod_file["number_of_patterns"] + 1): # skip pattern data
-            file.read(256 * mod_file["number_of_channels"])
-        for i in range(len(mod_file["samples"])):
-            sample = mod_file["samples"][i]
+        mod_data = ProtrackerMOD(file)
+
+        for i in range(len(mod_data.samples)):
+            sample = mod_data.samples[i]
             if sample["length"] > 0:
                 sample_file_name = str(i)
                 if sample["name"] != "":
