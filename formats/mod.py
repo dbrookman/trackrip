@@ -1,5 +1,9 @@
 class ProtrackerMOD:
     """Retrieves sample data from Protracker MOD files."""
+
+    # Amiga Paula clock rate closest to 8372Hz C
+    SAMPLE_RATE = 8363
+
     def __init__(self, file):
         self.file = file
         self.file.seek(1080)
@@ -20,6 +24,7 @@ class ProtrackerMOD:
         for i, _ in enumerate(self.samples):
             sample = self.samples[i]
             if sample["length"] > 0:
+                self.samples[i]["rate"] = self.SAMPLE_RATE
                 self.samples[i]["data"] = file.read(sample["length"])
 
     def get_sample_count(self) -> int:

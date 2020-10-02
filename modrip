@@ -43,8 +43,7 @@ def main():
                 out = wave.open(sample_file_name + ".wav", "wb")
                 out.setnchannels(1)
                 out.setsampwidth(2)
-                # Amiga Paula clock rate closest to C at 8372Hz
-                out.setframerate(8363)
+                out.setframerate(sample["rate"])
                 out.writeframes(sample["data"])
                 out.close()
 
