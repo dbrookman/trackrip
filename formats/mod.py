@@ -1,4 +1,5 @@
 class ProtrackerMOD:
+    """Retrieves sample data from Protracker MOD files."""
     def __init__(self, file):
         self.file = file
         self.file.seek(1080)
