@@ -7,7 +7,7 @@ import wave
 
 def get_sample_data(sample_bytes) -> dict:
     """Returns a dictionary of the sample's data extracted from sample_bytes."""
-    assert(len(sample_bytes) == 30)
+    assert len(sample_bytes) == 30, "Sample data should be 30 bytes."
     sample = {}
     sample["name"] = sample_bytes[:22].strip(b"\x00\x0e").decode("utf-8").strip()
     sample["length"] = int.from_bytes(sample_bytes[22:24], "big") * 2
@@ -42,7 +42,9 @@ def get_number_of_channels(identifier_bytes) -> int:
         number_of_channels = 8
     elif identifier_bytes in [b"2CHN"]:
         number_of_channels = 2
-    assert(number_of_channels > 0)
+    assert number_of_channels > 0, "Identifier " \
+                                    + str(identifier_bytes) \
+                                    + " is currently unsupported."
     return number_of_channels
 
 def main():
