@@ -54,7 +54,7 @@ class ProtrackerMOD:
         """Returns a dictionary of the sample's data extracted from sample_bytes."""
         assert len(sample_bytes) == 30, "Sample data should be 30 bytes."
         sample = {}
-        sample["name"] = sample_bytes[:22].strip(b"\x00\x0e").decode("ascii").strip()
+        sample["name"] = sample_bytes[:22].decode("ascii")
         sample["length"] = int.from_bytes(sample_bytes[22:24], "big") * 2
         finetune_value = int.from_bytes(sample_bytes[24:25], "big") & 0x0F
         # convert from base-16 to a signed nibble (-8..7)
