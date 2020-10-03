@@ -1,4 +1,6 @@
-# modrip
+# trackrip
+_(tracker-rip)_
+
 Extracts samples from music tracker module files.
 
 - Currently supports the following formats:
@@ -7,7 +9,7 @@ Extracts samples from music tracker module files.
 
 ## Usage
 
-`modrip <module_file>`
+`trackrip <module_file>`
 
 ## Useful Links
 ### ProTracker MOD Format
