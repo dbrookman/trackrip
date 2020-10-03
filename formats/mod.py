@@ -14,7 +14,7 @@ class ProtrackerMOD:
         self.samples = []
         for i in range(self.get_sample_count()):
             sample_bytes = self.file.read(30)
-            sample = self.get_sample_data(sample_bytes)
+            sample = self.get_sample_info(sample_bytes)
             self.samples.append(sample)
         self.file.read(1) # number of song positions
         self.file.read(1) # this byte can be ignored
@@ -50,21 +50,12 @@ class ProtrackerMOD:
         return number_of_channels
 
     @staticmethod
-    def get_sample_data(sample_bytes) -> dict:
+    def get_sample_info(sample_bytes) -> dict:
         """Returns a dictionary of the sample's data extracted from sample_bytes."""
         assert len(sample_bytes) == 30, "Sample data should be 30 bytes."
         sample = {}
         sample["name"] = sample_bytes[:22].decode("ascii")
         sample["length"] = int.from_bytes(sample_bytes[22:24], "big") * 2
-        finetune_value = int.from_bytes(sample_bytes[24:25], "big") & 0x0F
-        # convert from base-16 to a signed nibble (-8..7)
-        if finetune_value > 7:
-            sample["finetune"] = finetune_value - 16
-        else:
-            sample["finetune"] = finetune_value
-        sample["volume"] = int.from_bytes(sample_bytes[25:26], "big")
-        sample["loop_offset"] = int.from_bytes(sample_bytes[26:28], "big")
-        sample["loop_length"] = int.from_bytes(sample_bytes[28:30], "big")
         return sample
 
     @staticmethod
