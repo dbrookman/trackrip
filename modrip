@@ -7,13 +7,17 @@ import sys
 import string
 import wave
 from formats.mod import ProtrackerMOD
+from formats.s3m import ScreamTracker3MOD
 
 def get_mod_type(file) -> str:
     """Determines the format of the module file provided."""
     if file.read(4) == b"IMPM":
         return "IT"
     file.seek(28)
-    if file.read(2) == b"\x1A\x10":
+    sig_one = file.read(2)
+    file.seek(44)
+    sig_two = file.read(4)
+    if sig_one == b"\x1A\x10" and sig_two == b'SCRM':
         return "S3M"
     return "MOD"
 
@@ -23,15 +27,17 @@ def main():
     parser.add_argument("mod_file", type=Path)
     args = parser.parse_args()
     with open(args.mod_file, "rb") as file:
-        print(args.mod_file)
         mod_type = get_mod_type(file)
         if mod_type == "MOD":
-            mod_data = ProtrackerMOD(file)
+            mod = ProtrackerMOD(file)
+        elif mod_type == "S3M":
+            mod = ScreamTracker3MOD(file)
         else:
             print("%s files are not supported yet." % mod_type)
             sys.exit(1)
-        for i, sample in enumerate(mod_data.samples):
+        print("TITLE: " + mod.title)
         printable = set(string.printable)
+        for i, sample in enumerate(mod.samples):
             sample_file_name = ""
             if sample["length"] > 0:
                 sample_file_name = str(i)

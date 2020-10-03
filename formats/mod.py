@@ -11,7 +11,6 @@ class ProtrackerMOD:
         self.identifier = self.file.read(4)
         self.file.seek(0)
         self.title = self.file.read(20).decode("ascii")
-        print("TITLE: " + self.title)
         self.samples = []
         for i in range(self.get_sample_count()):
             sample_bytes = self.file.read(30)
