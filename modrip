@@ -45,7 +45,7 @@ def main():
                 print("[Exporting Sample] " + sample_file_name)
                 out = wave.open(sample_file_name + ".wav", "wb")
                 out.setnchannels(1)
-                out.setsampwidth(2)
+                out.setsampwidth(sample["width"])
                 out.setframerate(sample["rate"])
                 out.writeframes(sample["data"])
                 out.close()
