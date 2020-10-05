@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 import string
 import wave
-import formats
+from trackrip import ripper
 
 def main():
     """Parses, opens and extracts samples from a tracker module file."""
@@ -17,7 +17,7 @@ def main():
     args = parser.parse_args()
 
     with open(args.mod_file, "rb") as file:
-        mod_file = formats.parse_module(file)
+        mod_file = ripper.parse_module(file)
 
         print("TITLE: " + mod_file.title)
 
