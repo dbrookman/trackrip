@@ -9,7 +9,7 @@ class ProtrackerMOD:
 
     # Amiga Paula clock rate closest to 8372Hz C
     SAMPLE_RATE = 8363
-    SAMPLE_WIDTH = 2
+    SAMPLE_WIDTH = 16 // 8 # why does this sound right set to 16-bit instead of 8-bit?
 
     def __init__(self, file):
         self.file = file
@@ -85,7 +85,7 @@ class ProtrackerMOD:
 class ScreamTracker3S3M:
     """Retrieves sample data from ScreamTracker 3 S3M files."""
 
-    SAMPLE_WIDTH = 1
+    SAMPLE_WIDTH = 8 // 8
 
     def __init__(self, file):
         self.file = file
@@ -197,6 +197,6 @@ class ImpulseTrackerIT:
     def decode_sample_header(sample_bytes) -> dict:
         """Returns a dictionary of the sample's data extracted from sample_bytes."""
         assert len(sample_bytes) == 80, "Sample data should be 80 bytes."
-        assert sample_bytes[:4] == b"IMsS", "Sample data should start with \"IMPS\"."
+        assert sample_bytes[:4] == b"IMPS", "Sample data should start with \"IMPS\"."
 
         raise NotImplementedError("Reading IT sample headers isn't supported yet.")

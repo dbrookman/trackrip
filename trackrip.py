@@ -3,7 +3,6 @@
 
 import argparse
 from pathlib import Path
-import sys
 import string
 import wave
 from trackrip import ripper
@@ -33,8 +32,9 @@ def main():
                                            c.isalnum() or c in
                                            keepcharacters).rstrip()
                 print("[Exporting Sample] " + sample_file_name)
+                sample_file_name += ".wav"
 
-                out = wave.open(sample_file_name + ".wav", "wb")
+                out = wave.open(sample_file_name, "wb")
                 out.setnchannels(1)
                 out.setsampwidth(sample["width"])
                 out.setframerate(sample["rate"])
