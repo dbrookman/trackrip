@@ -1,3 +1,9 @@
+from io import SEEK_CUR
+
+class ModuleFormat():
+    def __init__(self, file):
+        pass
+
 class ProtrackerMOD:
     """Retrieves sample data from Protracker MOD files."""
 
@@ -7,26 +13,30 @@ class ProtrackerMOD:
 
     def __init__(self, file):
         self.file = file
+
         self.file.seek(1080)
         self.identifier = self.file.read(4)
+
         self.file.seek(0)
         self.title = self.file.read(20).decode("ascii")
+
         self.samples = []
-        for i in range(self.get_sample_count()):
-            sample_bytes = self.file.read(30)
-            sample = self.get_sample_info(sample_bytes)
+        for _ in range(self.get_sample_count()):
+            sample = self.decode_sample_header(self.file.read(30))
             self.samples.append(sample)
-        self.file.read(1) # number of song positions
-        self.file.read(1) # this byte can be ignored
-        pattern_count = self.get_last_pattern(self.file.read(128))
-        for i in range(pattern_count + 1): # skip pattern data
-            self.file.read(256 * self.get_channel_count())
-        for i, _ in enumerate(self.samples):
-            sample = self.samples[i]
+
+        self.file.seek(1, SEEK_CUR) # skip number of song positions
+        self.file.seek(1, SEEK_CUR) # this byte can be ignored
+
+        pattern_count = self.find_highest_pattern(self.file.read(128))
+        for _ in range(pattern_count + 1): # skip pattern data
+            self.file.seek(256 * self.get_channel_count(), SEEK_CUR)
+
+        for sample in self.samples:
             if sample["length"] > 0:
-                self.samples[i]["rate"] = self.SAMPLE_RATE
-                self.samples[i]["width"] = self.SAMPLE_WIDTH
-                self.samples[i]["data"] = file.read(sample["length"])
+                sample["rate"] = self.SAMPLE_RATE
+                sample["width"] = self.SAMPLE_WIDTH
+                sample["data"] = file.read(sample["length"])
 
     def get_sample_count(self) -> int:
         """Returns the # of samples present."""
@@ -51,16 +61,19 @@ class ProtrackerMOD:
         return number_of_channels
 
     @staticmethod
-    def get_sample_info(sample_bytes) -> dict:
-        """Returns a dictionary of the sample's data extracted from sample_bytes."""
-        assert len(sample_bytes) == 30, "Sample data should be 30 bytes."
+    def decode_sample_header(sample_bytes) -> dict:
+        """Returns a dictionary of the sample's header data extracted from sample_bytes."""
+        assert len(sample_bytes) == 30, "Sample header should be 30 bytes."
+
         sample = {}
+
         sample["name"] = sample_bytes[:22].decode("ascii")
         sample["length"] = int.from_bytes(sample_bytes[22:24], "big") * 2
+
         return sample
 
     @staticmethod
-    def get_last_pattern(pattern_table_bytes) -> int:
+    def find_highest_pattern(pattern_table_bytes) -> int:
         """Returns the highest pattern in pattern_table_bytes."""
         last_pattern = 0
         for i in range(128):

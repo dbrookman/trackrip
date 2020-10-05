@@ -6,42 +6,26 @@ from pathlib import Path
 import sys
 import string
 import wave
-from formats.mod import ProtrackerMOD
-from formats.s3m import ScreamTracker3MOD
-
-def get_mod_type(file) -> str:
-    """Determines the format of the module file provided."""
-    if file.read(4) == b"IMPM":
-        return "IT"
-    file.seek(28)
-    sig_one = file.read(2)
-    file.seek(44)
-    sig_two = file.read(4)
-    if sig_one == b"\x1A\x10" and sig_two == b'SCRM':
-        return "S3M"
-    return "MOD"
+import formats
 
 def main():
-    """Parses, opens and extracts samples from a MOD file."""
+    """Parses, opens and extracts samples from a tracker module file."""
+
     parser = argparse.ArgumentParser()
     parser.add_argument("mod_file", type=Path)
+
     args = parser.parse_args()
+
     with open(args.mod_file, "rb") as file:
-        mod_type = get_mod_type(file)
-        if mod_type == "MOD":
-            mod = ProtrackerMOD(file)
-        elif mod_type == "S3M":
-            mod = ScreamTracker3MOD(file)
-        else:
-            print("%s files are not supported yet." % mod_type)
-            sys.exit(1)
-        print("TITLE: " + mod.title)
-        printable = set(string.printable)
-        for i, sample in enumerate(mod.samples):
+        mod_file = formats.parse_module(file)
+
+        print("TITLE: " + mod_file.title)
+
+        for i, sample in enumerate(mod_file.samples):
             sample_file_name = ""
             if sample["length"] > 0:
                 sample_file_name = str(i)
-                sample["name"] = "".join(filter(lambda x: x in printable, sample["name"]))
+                sample["name"] = "".join(filter(lambda x: x in set(string.printable), sample["name"]))
                 if sample["name"] != "":
                     sample_file_name += " - " + sample["name"]
                 keepcharacters = (" ", ".", "_", "-")
@@ -49,6 +33,7 @@ def main():
                                            c.isalnum() or c in
                                            keepcharacters).rstrip()
                 print("[Exporting Sample] " + sample_file_name)
+
                 out = wave.open(sample_file_name + ".wav", "wb")
                 out.setnchannels(1)
                 out.setsampwidth(sample["width"])
