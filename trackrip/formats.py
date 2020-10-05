@@ -36,7 +36,7 @@ class ProtrackerMOD:
             if sample["length"] > 0:
                 sample["rate"] = self.SAMPLE_RATE
                 sample["width"] = self.SAMPLE_WIDTH
-                sample["data"] = file.read(sample["length"])
+                sample["data"] = self.file.read(sample["length"])
 
     def get_sample_count(self) -> int:
         """Returns the # of samples present."""
@@ -90,44 +90,44 @@ class ScreamTracker3S3M:
     def __init__(self, file):
         self.file = file
 
-        file.seek(0)
+        self.file.seek(0)
         self.title = self.file.read(28).decode("ascii")
 
         # skip sig1, type & reserved
-        file.seek(4, SEEK_CUR)
+        self.file.seek(4, SEEK_CUR)
 
-        order_count = int.from_bytes(file.read(2), "little")
-        instrument_count = int.from_bytes(file.read(2), "little")
+        order_count = int.from_bytes(self.file.read(2), "little")
+        instrument_count = int.from_bytes(self.file.read(2), "little")
 
         # skip patternPtrCount, flags, trackVersion
-        file.seek(6, SEEK_CUR)
+        self.file.seek(6, SEEK_CUR)
 
-        sample_type = int.from_bytes(file.read(2), "little")
+        sample_type = int.from_bytes(self.file.read(2), "little")
         if sample_type != 2:
             raise NotImplementedError("Signed samples aren't supported yet.")
 
         # skip sig2, globalVolume, initialSpeed, initialTempo, masterVolume,
         # ultraClickRemoval, defaultPan, reserved, ptrSpecial, channelSettings
-        file.seek(52, SEEK_CUR)
+        self.file.seek(52, SEEK_CUR)
         # skip orderList
-        file.seek(order_count, SEEK_CUR)
+        self.file.seek(order_count, SEEK_CUR)
 
         instrument_pointers = []
         for _ in range(instrument_count):
             # convert parapointer
-            instrument_pointers.append(int.from_bytes(file.read(2), "little") * 16)
+            instrument_pointers.append(int.from_bytes(self.file.read(2), "little") * 16)
 
         self.samples = []
         for pointer in instrument_pointers:
-            file.seek(pointer)
-            if file.read(1) == b"\x01": # PCM instrument
-                file.seek(-1, SEEK_CUR)
-                sample = self.decode_sample_header(file.read(78))
+            self.file.seek(pointer)
+            if self.file.read(1) == b"\x01": # PCM instrument
+                self.file.seek(-1, SEEK_CUR)
+                sample = self.decode_sample_header(self.file.read(78))
                 self.samples.append(sample)
 
         for sample in self.samples:
-            file.seek(sample["pointer"])
-            sample["data"] = file.read(sample["length"])
+            self.file.seek(sample["pointer"])
+            sample["data"] = self.file.read(sample["length"])
             sample["width"] = self.SAMPLE_WIDTH
 
     @staticmethod
