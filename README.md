@@ -9,7 +9,7 @@ Extracts samples from music tracker module files.
 
 ## Usage
 
-`trackrip <module_file>`
+`python3 trackrip.py <module_file>`
 
 ## Useful Links
 ### ProTracker MOD Format

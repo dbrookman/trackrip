@@ -2,7 +2,7 @@ import trackrip.formats as formats
 
 def parse_module(file) -> str:
     """
-    Determines the format of the module file provided and returns the
+    Determines the format of the module file provided and returns it as an
     appropriate object.
     """
     if file.read(4) == b"IMPM":
