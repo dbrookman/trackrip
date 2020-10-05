@@ -167,4 +167,36 @@ class ImpulseTrackerIT:
 
     def __init__(self, file):
         self.file = file
+
+        self.file.seek(4)
+        self.title = self.file.read(26).decode("ascii")
+        print(self.title)
+
+        # skip pattern row highlight
+        self.file.seek(2, SEEK_CUR)
+
+        order_count = int.from_bytes(self.file.read(2), "little")
+        instrument_count = int.from_bytes(self.file.read(2), "little")
+        sample_count = int.from_bytes(self.file.read(2), "little")
+
+        self.file.seek(192 + order_count + (instrument_count * 4))
+
+        sample_pointers = []
+        for _ in range(sample_count):
+            pointer = int.from_bytes(self.file.read(4), "little")
+            sample_pointers.append(pointer)
+        samples = []
+        for pointer in sample_pointers:
+            self.file.seek(pointer)
+            sample = self.decode_sample_header(self.file.read(80))
+            samples.append(sample)
+
         raise NotImplementedError(".IT files aren't supported yet.")
+
+    @staticmethod
+    def decode_sample_header(sample_bytes) -> dict:
+        """Returns a dictionary of the sample's data extracted from sample_bytes."""
+        assert len(sample_bytes) == 80, "Sample data should be 80 bytes."
+        assert sample_bytes[:4] == b"IMsS", "Sample data should start with \"IMPS\"."
+
+        raise NotImplementedError("Reading IT sample headers isn't supported yet.")
