@@ -39,6 +39,7 @@ def main():
                 out.setsampwidth(sample["width"])
                 out.setframerate(sample["rate"])
 
+                # TODO: is this a bug in "wave"?
                 if sample["width"] == 1:
                     data = bytearray()
                     for byte in sample["data"]:
