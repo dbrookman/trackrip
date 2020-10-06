@@ -134,6 +134,7 @@ class ScreamTracker3S3M:
     def decode_sample_header(sample_bytes) -> dict:
         """Returns a dictionary of the sample's data extracted from sample_bytes."""
         assert len(sample_bytes) == 78, "Sample data should be 78 bytes."
+
         sample = {}
 
         # skip og instrument filename
@@ -170,7 +171,6 @@ class ImpulseTrackerIT:
 
         self.file.seek(4)
         self.title = self.file.read(26).decode("ascii")
-        print(self.title)
 
         # skip pattern row highlight
         self.file.seek(2, SEEK_CUR)
@@ -181,22 +181,64 @@ class ImpulseTrackerIT:
 
         self.file.seek(192 + order_count + (instrument_count * 4))
 
-        sample_pointers = []
+        sample_header_pointers = []
         for _ in range(sample_count):
             pointer = int.from_bytes(self.file.read(4), "little")
-            sample_pointers.append(pointer)
-        samples = []
-        for pointer in sample_pointers:
+            sample_header_pointers.append(pointer)
+
+        self.samples = []
+        for pointer in sample_header_pointers:
             self.file.seek(pointer)
             sample = self.decode_sample_header(self.file.read(80))
-            samples.append(sample)
+            self.samples.append(sample)
+        for sample in self.samples:
+            self.file.seek(sample["pointer"])
+            sample_data = self.file.read(sample["length"])
+            if not sample["compressed"]:
+                sample["data"] = sample_data
+            else:
+                sample["data"] = self.decompress_it_sample(sample_data)
 
         raise NotImplementedError(".IT files aren't supported yet.")
 
     @staticmethod
-    def decode_sample_header(sample_bytes) -> dict:
-        """Returns a dictionary of the sample's data extracted from sample_bytes."""
-        assert len(sample_bytes) == 80, "Sample data should be 80 bytes."
-        assert sample_bytes[:4] == b"IMPS", "Sample data should start with \"IMPS\"."
+    def decode_sample_header(header_bytes) -> dict:
+        """Returns a dictionary of the sample's data extracted from header_bytes."""
+        assert len(header_bytes) == 80, "Sample data should be 80 bytes."
+        assert header_bytes[:4] == b"IMPS", "Sample data should start with \"IMPS\"."
 
-        raise NotImplementedError("Reading IT sample headers isn't supported yet.")
+        sample = {}
+
+        #skip DOS filename, blank and global volume
+
+        flags = int.from_bytes(header_bytes[18:19], "little")
+        assert (flags >> 7) & 1 == 0
+        # on = 16-bit, off = 8-bit
+        sample["width"] = 16//8 if (flags >> 6) & 1 else 8//8
+        if (flags >> 5) & 1:
+            raise NotImplementedError("Stereo samples aren't supported.")
+        sample["compressed"] = not bool((flags >> 4) & 1)
+        # skip loop flags
+
+        # skip instrument volume
+
+        sample["name"] = header_bytes[20:46].decode("ascii")
+
+        # skip cvt (?) and default pan
+
+        sample["length"] = int.from_bytes(header_bytes[48:52], "little")
+
+        sample["loop_start"] = int.from_bytes(header_bytes[52:56], "little")
+        sample["loop_end"] = int.from_bytes(header_bytes[56:60], "little")
+
+        sample["rate"] = int.from_bytes(header_bytes[60:64], "little")
+
+        #skip sustain loop start / end
+
+        sample["pointer"] = int.from_bytes(header_bytes[72:76], "little")
+
+        return sample
+
+    @staticmethod
+    def decompress_it_sample(sample_bytes) -> bytes:
+        raise NotImplementedError("Compressed samples aren't supported yet.")
