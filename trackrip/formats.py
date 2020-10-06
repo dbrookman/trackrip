@@ -199,8 +199,6 @@ class ImpulseTrackerIT:
             else:
                 sample["data"] = self.decompress_it_sample(sample_data)
 
-        raise NotImplementedError(".IT files aren't supported yet.")
-
     @staticmethod
     def decode_sample_header(header_bytes) -> dict:
         """Returns a dictionary of the sample's data extracted from header_bytes."""
@@ -217,7 +215,7 @@ class ImpulseTrackerIT:
         sample["width"] = 16//8 if (flags >> 1) & 1 else 8//8
         if (flags >> 3) & 1:
             raise NotImplementedError("Stereo samples aren't supported.")
-        sample["compressed"] = not bool((flags >> 4) & 1)
+        sample["compressed"] = bool((flags >> 4) & 1)
         # skip loop flags
 
         # skip instrument volume
@@ -225,11 +223,13 @@ class ImpulseTrackerIT:
         sample["name"] = header_bytes[20:46].decode("ascii")
 
         # skip cvt (?) and default pan
+        # TODO: take convert into account
+        # bin(int.from_bytes(header_bytes[46:47], "little"))
 
-        sample["length"] = int.from_bytes(header_bytes[48:52], "little")
-
-        sample["loop_start"] = int.from_bytes(header_bytes[52:56], "little")
-        sample["loop_end"] = int.from_bytes(header_bytes[56:60], "little")
+        # length of sample is stored in no. of samples NOT no. of bytes
+        sample["length"] = int.from_bytes(header_bytes[48:52], "little") * sample["width"]
+        sample["loop_start"] = int.from_bytes(header_bytes[52:56], "little") * sample["width"]
+        sample["loop_end"] = int.from_bytes(header_bytes[56:60], "little") * sample["width"]
 
         sample["rate"] = int.from_bytes(header_bytes[60:64], "little")
 
@@ -241,4 +241,5 @@ class ImpulseTrackerIT:
 
     @staticmethod
     def decompress_it_sample(sample_bytes) -> bytes:
-        raise NotImplementedError("Compressed samples aren't supported yet.")
+        # TODO: investigate compression flag
+        return sample_bytes
