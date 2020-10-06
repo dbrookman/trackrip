@@ -211,11 +211,11 @@ class ImpulseTrackerIT:
 
         #skip DOS filename, blank and global volume
 
-        flags = int.from_bytes(header_bytes[18:19], "little")
-        assert (flags >> 7) & 1 == 0
+        flags = int.from_bytes(header_bytes[18:19], "big")
+        assert (flags >> 0) & 1 == 1
         # on = 16-bit, off = 8-bit
-        sample["width"] = 16//8 if (flags >> 6) & 1 else 8//8
-        if (flags >> 5) & 1:
+        sample["width"] = 16//8 if (flags >> 1) & 1 else 8//8
+        if (flags >> 3) & 1:
             raise NotImplementedError("Stereo samples aren't supported.")
         sample["compressed"] = not bool((flags >> 4) & 1)
         # skip loop flags
