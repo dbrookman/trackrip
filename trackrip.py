@@ -38,7 +38,19 @@ def main():
                 out.setnchannels(1)
                 out.setsampwidth(sample["width"])
                 out.setframerate(sample["rate"])
-                out.writeframes(sample["data"])
+
+                if sample["width"] == 1:
+                    data = bytearray()
+                    for byte in sample["data"]:
+                        if byte > 127:
+                            signed = byte - 127
+                        else:
+                            signed = byte + 127
+                        data.append(signed)
+                else:
+                    data = sample["data"]
+
+                out.writeframes(data)
                 out.close()
 
 

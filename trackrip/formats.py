@@ -9,7 +9,7 @@ class ProtrackerMOD:
 
     # Amiga Paula clock rate closest to 8372Hz C
     SAMPLE_RATE = 8363
-    SAMPLE_WIDTH = 16 // 8 # why does this sound right set to 16-bit instead of 8-bit?
+    SAMPLE_WIDTH = 8 // 8
 
     def __init__(self, file):
         self.file = file
@@ -214,7 +214,7 @@ class ImpulseTrackerIT:
         flags = int.from_bytes(header_bytes[18:19], "big")
         assert (flags >> 0) & 1 == 1
         # on = 16-bit, off = 8-bit
-        sample["width"] = 16//8 if (flags >> 1) & 1 else 32//8
+        sample["width"] = 16//8 if (flags >> 1) & 1 else 8//8
         if (flags >> 3) & 1:
             raise NotImplementedError("Stereo samples aren't supported.")
         sample["compressed"] = not bool((flags >> 4) & 1)
