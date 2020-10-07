@@ -1,4 +1,5 @@
 from io import SEEK_CUR
+import trackrip.pcm as pcm
 
 class ModuleFormat():
     def __init__(self, file):
@@ -37,6 +38,7 @@ class ProtrackerMOD:
                 sample["rate"] = self.SAMPLE_RATE
                 sample["width"] = self.SAMPLE_WIDTH
                 sample["data"] = self.file.read(sample["length"])
+                sample["data"] = pcm.signed_to_unsigned(sample["data"])
 
     def get_sample_count(self) -> int:
         """Returns the # of samples present."""
@@ -198,6 +200,9 @@ class ImpulseTrackerIT:
                 sample["data"] = sample_data
             else:
                 sample["data"] = self.decompress_it_sample(sample_data)
+            # HACK: don't know why 8-bit samples are signed while 16-bit samples are unsigned
+            if sample["width"] == 1:
+                sample["data"] = pcm.signed_to_unsigned(sample["data"])
 
     @staticmethod
     def decode_sample_header(header_bytes) -> dict:
