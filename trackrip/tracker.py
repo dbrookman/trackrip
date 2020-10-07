@@ -33,7 +33,8 @@ class ProtrackerMOD:
         for _ in range(pattern_count + 1): # skip pattern data
             self.file.seek(256 * self.get_channel_count(), SEEK_CUR)
 
-        for sample in self.samples:
+        for i, sample in enumerate(self.samples):
+            sample["number"] = i
             if sample["length"] > 0:
                 sample["rate"] = self.SAMPLE_RATE
                 sample["width"] = self.SAMPLE_WIDTH
@@ -120,11 +121,12 @@ class ScreamTracker3S3M:
             instrument_pointers.append(int.from_bytes(self.file.read(2), "little") * 16)
 
         self.samples = []
-        for pointer in instrument_pointers:
+        for i, pointer in enumerate(instrument_pointers):
             self.file.seek(pointer)
             if self.file.read(1) == b"\x01": # PCM instrument
                 self.file.seek(-1, SEEK_CUR)
                 sample = self.decode_sample_header(self.file.read(78))
+                sample["number"] = i
                 self.samples.append(sample)
 
         for sample in self.samples:
@@ -189,9 +191,10 @@ class ImpulseTrackerIT:
             sample_header_pointers.append(pointer)
 
         self.samples = []
-        for pointer in sample_header_pointers:
+        for i, pointer in enumerate(sample_header_pointers):
             self.file.seek(pointer)
             sample = self.decode_sample_header(self.file.read(80))
+            sample["number"] = i
             self.samples.append(sample)
         for sample in self.samples:
             self.file.seek(sample["pointer"])
@@ -215,7 +218,7 @@ class ImpulseTrackerIT:
         #skip DOS filename, blank and global volume
 
         flags = int.from_bytes(header_bytes[18:19], "big")
-        assert (flags >> 0) & 1 == 1
+        # assert (flags >> 0) & 1 == 1
         # on = 16-bit, off = 8-bit
         sample["width"] = 16//8 if (flags >> 1) & 1 else 8//8
         if (flags >> 3) & 1:

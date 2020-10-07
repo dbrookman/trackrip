@@ -20,10 +20,10 @@ def main():
 
         print("TITLE: " + mod_file.title)
 
-        for i, sample in enumerate(mod_file.samples):
+        for sample in mod_file.samples:
             sample_file_name = ""
             if sample["length"] > 0:
-                sample_file_name = str(i)
+                sample_file_name = str(sample["number"])
                 sample["name"] = "".join(filter(lambda x: x in set(string.printable), sample["name"]))
                 if sample["name"] != "":
                     sample_file_name += " - " + sample["name"]
