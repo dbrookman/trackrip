@@ -125,14 +125,15 @@ class ScreamTracker3S3M:
             self.file.seek(pointer)
             if self.file.read(1) == b"\x01": # PCM instrument
                 self.file.seek(-1, SEEK_CUR)
-                sample = self.decode_sample_header(self.file.read(78))
                 sample["number"] = i
+                sample = self.decode_sample_header(self.file.read(78))
                 self.samples.append(sample)
 
         for sample in self.samples:
             self.file.seek(sample["pointer"])
-            sample["data"] = self.file.read(sample["length"])
-            sample["width"] = self.SAMPLE_WIDTH
+            if sample["length"] > 0:
+                sample["data"] = self.file.read(sample["length"])
+                sample["width"] = self.SAMPLE_WIDTH
 
     @staticmethod
     def decode_sample_header(sample_bytes) -> dict:
@@ -196,16 +197,18 @@ class ImpulseTrackerIT:
             sample = self.decode_sample_header(self.file.read(80))
             sample["number"] = i
             self.samples.append(sample)
+
         for sample in self.samples:
-            self.file.seek(sample["pointer"])
-            sample_data = self.file.read(sample["length"])
-            if not sample["compressed"]:
-                sample["data"] = sample_data
-            else:
-                sample["data"] = self.decompress_it_sample(sample_data)
-            # HACK: don't know why 8-bit samples are signed while 16-bit samples are unsigned
-            if sample["width"] == 1:
-                sample["data"] = pcm.signed_to_unsigned(sample["data"])
+            if sample["length"] > 0:
+                self.file.seek(sample["pointer"])
+                sample_data = self.file.read(sample["length"])
+                if not sample["compressed"]:
+                    sample["data"] = sample_data
+                else:
+                    sample["data"] = self.decompress_it_sample(sample_data)
+                # HACK: don't know why 8-bit samples are signed while 16-bit samples are unsigned
+                if sample["width"] == 1:
+                    sample["data"] = pcm.signed_to_unsigned(sample["data"])
 
     @staticmethod
     def decode_sample_header(header_bytes) -> dict:
