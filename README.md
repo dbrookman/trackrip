@@ -20,7 +20,8 @@ Extracts samples from music tracker module files.
 ### Scream Tracker 3 S3M Format
 * [Scream Tracker 3.01 BETA File Formats And Mixing Info](http://www.textfiles.com/programming/FORMATS/s3m-form.txt)
 * [S3M Format](http://www.shikadi.net/moddingwiki/S3M_Format) on the DOS Game Modding Wiki.
-* [S3M Player Tutorial](https://modland.com/pub/documents/format_documentation/FireLight%20S3M%20Player%20Tutorial.txt)
+* [S3M Player Tutorial](https://modland.com/pub/documents/format_documentation/FireLight%20S3M%20Player%20Tutorial.txt) by FireLight
 ### Impulse Tracker IT Format
 * [ITTECH.TXT](https://github.com/schismtracker/schismtracker/wiki/ITTECH.TXT)
+* [IT214 sample compression](https://wiki.multimedia.cx/index.php/Impulse_Tracker#IT214_sample_compression) on MultimediaWiki.
 
