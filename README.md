@@ -6,7 +6,7 @@ Extracts samples from music tracker module files.
 - Currently supports the following formats:
     - __MOD__
     - __S3M__ (partially)
-    - __IT__ (working on it!)
+    - __IT__
 
 ## Usage
 
