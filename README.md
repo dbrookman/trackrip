@@ -22,6 +22,6 @@ Extracts samples from music tracker module files.
 * [S3M Format](http://www.shikadi.net/moddingwiki/S3M_Format) on the DOS Game Modding Wiki.
 * [S3M Player Tutorial](https://modland.com/pub/documents/format_documentation/FireLight%20S3M%20Player%20Tutorial.txt) by FireLight
 ### Impulse Tracker IT Format
-* [ITTECH.TXT](https://github.com/schismtracker/schismtracker/wiki/ITTECH.TXT)
+* [ITTECH.TXT](https://ia600506.us.archive.org/view_archive.php?archive=/4/items/msdos_it214c_shareware/it214c.zip&file=ITTECH.TXT)
 * [IT214 sample compression](https://wiki.multimedia.cx/index.php/Impulse_Tracker#IT214_sample_compression) on MultimediaWiki.
 
