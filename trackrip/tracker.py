@@ -117,14 +117,15 @@ class ScreamTracker3S3M:
         instrument_pointers = []
         for _ in range(instrument_count):
             # convert parapointer
-            instrument_pointers.append(int.from_bytes(self.file.read(2), "little") * 16)
+            pointer = int.from_bytes(self.file.read(2), "little") * 16
+            instrument_pointers.append(pointer)
 
         self.samples = []
         for i, pointer in enumerate(instrument_pointers):
             self.file.seek(pointer)
             if self.file.read(1) == b"\x01": # PCM instrument
                 self.file.seek(-1, SEEK_CUR)
-                sample = self.decode_sample_header(self.file.read(78))
+                sample = self.decode_sample_header(self.file.read(80))
                 sample["number"] = i
                 self.samples.append(sample)
 
@@ -134,32 +135,45 @@ class ScreamTracker3S3M:
                 sample["data"] = self.file.read(sample["length"])
                 if signed:
                     sample["data"] = pcm.signed_to_unsigned(sample["data"])
-                sample["width"] = self.SAMPLE_WIDTH
 
     @staticmethod
     def decode_sample_header(sample_bytes) -> dict:
         """Returns a dictionary of the sample's data extracted from sample_bytes."""
-        assert len(sample_bytes) == 78, "Sample data should be 78 bytes."
+        assert len(sample_bytes) == 80, "Sample header should be 80 bytes."
+        assert sample_bytes[76:80] == b"SCRS", "Sample header should end with \"SCRS\"."
 
         sample = {}
 
-        # skip og instrument filename
+        # skip DOS instrument filename
 
         sample_parapointer_high = int.from_bytes(sample_bytes[13:14], "little")
         sample_parapointer_low = int.from_bytes(sample_bytes[14:16], "little")
-        # convert 24-bit parapointer
+        # convert from 24-bit parapointer
         sample["pointer"] = (sample_parapointer_high >> 16) + sample_parapointer_low * 16
 
         sample["length"] = int.from_bytes(sample_bytes[16:20], "little")
 
-        # skip loopStart, loopEnd, volume, and reserved
+        sample["loop_start"] = int.from_bytes(sample_bytes[20:22], "little")
+        sample["loop_end"] = int.from_bytes(sample_bytes[24:26], "little")
+
+        # skip volume & unused
 
         pack = int.from_bytes(sample_bytes[30:31], "little")
         if pack != 0:
-            raise NotImplementedError("Samples packed in DP30ADPCM aren't supported yet.")
+            raise NotImplementedError("Samples packed in DP30ADPCM aren't supported.")
+
         flags = int.from_bytes(sample_bytes[31:32], "little")
-        if flags > 1:
-            raise NotImplementedError("Stereo or 16-bit little-endian samples aren't supported yet.")
+        # if loop flag is off
+        if not flags & 1:
+            sample["loop_start"] = None
+            sample["loop_end"] = None
+        if flags & 2:
+            raise NotImplementedError("Stereo samples aren't supported.")
+        # 16-bit sample
+        if flags & 4:
+            sample["width"] = 16//8
+        else:
+            sample["width"] = 8//8
 
         sample["rate"] = int.from_bytes(sample_bytes[32:36], "little")
 
