@@ -65,7 +65,7 @@ class ProtrackerMOD:
 
     @staticmethod
     def decode_sample_header(sample_bytes) -> dict:
-        """Returns a dictionary of the sample's header data extracted from sample_bytes."""
+        """Returns a dict of the sample's header data decoded from sample_bytes."""
         assert len(sample_bytes) == 30, "Sample header should be 30 bytes."
 
         sample = {}
@@ -138,7 +138,7 @@ class ScreamTracker3S3M:
 
     @staticmethod
     def decode_sample_header(sample_bytes) -> dict:
-        """Returns a dictionary of the sample's data extracted from sample_bytes."""
+        """Returns a dict of the sample's header data decoded from sample_bytes."""
         assert len(sample_bytes) == 80, "Sample header should be 80 bytes."
         assert sample_bytes[76:80] == b"SCRS", "Sample header should end with \"SCRS\"."
 
@@ -227,9 +227,9 @@ class ImpulseTrackerIT:
 
     @staticmethod
     def decode_sample_header(header_bytes) -> dict:
-        """Returns a dictionary of the sample's data extracted from header_bytes."""
-        assert len(header_bytes) == 80, "Sample data should be 80 bytes."
-        assert header_bytes[:4] == b"IMPS", "Sample data should start with \"IMPS\"."
+        """Returns a dict of the sample's header data decoded from sample_bytes."""
+        assert len(header_bytes) == 80, "Sample header should be 80 bytes."
+        assert header_bytes[:4] == b"IMPS", "Sample header should start with \"IMPS\"."
 
         sample = {}
 
