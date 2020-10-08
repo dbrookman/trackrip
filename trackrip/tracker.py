@@ -125,8 +125,8 @@ class ScreamTracker3S3M:
             self.file.seek(pointer)
             if self.file.read(1) == b"\x01": # PCM instrument
                 self.file.seek(-1, SEEK_CUR)
-                sample["number"] = i
                 sample = self.decode_sample_header(self.file.read(78))
+                sample["number"] = i
                 self.samples.append(sample)
 
         for sample in self.samples:
