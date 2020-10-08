@@ -106,8 +106,7 @@ class ScreamTracker3S3M:
         self.file.seek(6, SEEK_CUR)
 
         sample_type = int.from_bytes(self.file.read(2), "little")
-        if sample_type != 2:
-            raise NotImplementedError("Signed samples aren't supported yet.")
+        signed = bool(sample_type == 1)
 
         # skip sig2, globalVolume, initialSpeed, initialTempo, masterVolume,
         # ultraClickRemoval, defaultPan, reserved, ptrSpecial, channelSettings
@@ -133,6 +132,8 @@ class ScreamTracker3S3M:
             self.file.seek(sample["pointer"])
             if sample["length"] > 0:
                 sample["data"] = self.file.read(sample["length"])
+                if signed:
+                    sample["data"] = pcm.signed_to_unsigned(sample["data"])
                 sample["width"] = self.SAMPLE_WIDTH
 
     @staticmethod
