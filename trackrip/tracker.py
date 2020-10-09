@@ -1,9 +1,6 @@
 from io import SEEK_CUR
 import pcm
 
-class ModuleFormat():
-    def __init__(self, file):
-        pass
 
 class ProtrackerMOD:
     """Retrieves sample data from Protracker MOD files."""
