@@ -1,5 +1,5 @@
 from io import SEEK_CUR
-import trackrip.pcm as pcm
+import pcm
 
 class ModuleFormat():
     def __init__(self, file):

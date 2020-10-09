@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
 """Rips all samples contained by a specified MOD music file to WAV."""
 
 import argparse
 from pathlib import Path
 import string
 import wave
-from trackrip import ripper
+import ripper
 
 def main():
     """Parses, opens and extracts samples from a tracker module file."""

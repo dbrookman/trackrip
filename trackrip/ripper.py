@@ -1,4 +1,4 @@
-import trackrip.tracker as tracker
+import tracker
 
 def parse_module(file) -> str:
     """
