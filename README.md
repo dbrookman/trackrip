@@ -8,6 +8,14 @@ Extracts samples from various music tracker module formats.
     - __S3M__
     - __IT__
 
+## Installation
+
+`pip3 install trackrip`
+
+Alternatively, you can download the source and run:
+
+`python setup.py install`
+
 ## Usage
 
 `trackrip <module_file>`
