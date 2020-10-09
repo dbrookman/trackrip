@@ -5,10 +5,12 @@ def parse_module(file) -> str:
     Determines the format of the module file provided and returns it as an
     appropriate object.
     """
-    s = file.read(4)
-    if s == b"IMPM":
+    s = file.read(8)
+    if s[:4] == b"IMPM":
         return tracker.ImpulseTrackerIT(file)
-    elif s == b"\xc1\x83*\x9e":
+    elif s[:8] == b"ziRCONia":
+        raise NotImplementedError("MMCMP-compression isn't supported.")
+    elif s[:4] == b"\xc1\x83*\x9e":
         raise NotImplementedError("UMX files aren't supported yet.")
 
     file.seek(28)
