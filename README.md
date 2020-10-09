@@ -1,16 +1,16 @@
 # trackrip
 _(tracker-rip)_
 
-Extracts samples from music tracker module files.
+Extracts samples from various music tracker module formats.
 
 - Currently supports the following formats:
     - __MOD__
     - __S3M__
-    - __IT__ (partially)
+    - __IT__
 
 ## Usage
 
-`python3 trackrip <module_file>`
+`trackrip <module_file>`
 
 ## Useful Links
 ### ProTracker MOD Format

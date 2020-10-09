@@ -1,10 +1,10 @@
-"""Rips all samples contained by a specified MOD music file to WAV."""
+"""Rips all samples contained in a specified tracker music file to WAV."""
 
 import argparse
 from pathlib import Path
 import string
 import wave
-import tracker
+from . import tracker
 
 def main():
     """Parses, opens and extracts samples from a tracker module file."""
@@ -40,7 +40,7 @@ def main():
                 print("[Exporting Sample] " + sample_file_name)
                 sample_file_name += ".wav"
 
-                output = Path(output_path, sample_file_name)
+                output = output_path / sample_file_name
                 out = wave.open(str(output), "wb")
                 out.setnchannels(1)
                 out.setsampwidth(sample["width"])

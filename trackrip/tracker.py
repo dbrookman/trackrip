@@ -3,7 +3,7 @@ A module for identifying and representing different tracker formats, and the
 samples inside them.
 """
 from io import SEEK_CUR
-import pcm
+from . import pcm
 
 def identify_module(file) -> str:
     """
