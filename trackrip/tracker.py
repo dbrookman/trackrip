@@ -30,6 +30,9 @@ class ProtrackerMOD:
         self.file.seek(1, SEEK_CUR) # this byte can be ignored
 
         pattern_count = self.find_highest_pattern(self.file.read(128))
+
+        self.file.seek(4, SEEK_CUR) # we've already got the identifier
+
         for _ in range(pattern_count + 1): # skip pattern data
             self.file.seek(256 * self.get_channel_count(), SEEK_CUR)
 
