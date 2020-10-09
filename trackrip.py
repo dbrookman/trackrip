@@ -11,12 +11,20 @@ def main():
     """Parses, opens and extracts samples from a tracker module file."""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("mod_file", type=Path)
+    parser.add_argument("mod", help="a valid MOD, S3M or IT file", type=Path)
+    parser.add_argument("-o", "--output_path", type=Path)
 
     args = parser.parse_args()
 
-    with open(args.mod_file, "rb") as file:
+    with open(args.mod, "rb") as file:
         mod_file = ripper.parse_module(file)
+
+        if args.output_path:
+            output_path = Path(Path.cwd(), args.output_path).resolve()
+            if not Path(output_path).is_dir():
+                raise NotADirectoryError("Output directory does not exist.")
+        else:
+            output_path = Path(Path.cwd())
 
         print("TITLE: " + mod_file.title)
 
@@ -34,7 +42,8 @@ def main():
                 print("[Exporting Sample] " + sample_file_name)
                 sample_file_name += ".wav"
 
-                out = wave.open(sample_file_name, "wb")
+                output = Path(output_path, sample_file_name)
+                out = wave.open(str(output), "wb")
                 out.setnchannels(1)
                 out.setsampwidth(sample["width"])
                 out.setframerate(sample["rate"])
