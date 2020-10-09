@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import string
 import wave
-import ripper
+import tracker
 
 def main():
     """Parses, opens and extracts samples from a tracker module file."""
@@ -16,8 +16,6 @@ def main():
     args = parser.parse_args()
 
     with open(args.mod, "rb") as file:
-        mod_file = ripper.parse_module(file)
-
         if args.output_path:
             output_path = Path(Path.cwd(), args.output_path).resolve()
             if not Path(output_path).is_dir():
@@ -25,6 +23,7 @@ def main():
         else:
             output_path = Path(Path.cwd())
 
+        mod_file = tracker.identify_module(file)
         print("TITLE: " + mod_file.title)
 
         for sample in mod_file.samples:
@@ -46,7 +45,6 @@ def main():
                 out.setnchannels(1)
                 out.setsampwidth(sample["width"])
                 out.setframerate(sample["rate"])
-
                 out.writeframes(sample["data"])
                 out.close()
 

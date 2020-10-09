@@ -1,6 +1,31 @@
+"""
+A module for identifying and representing different tracker formats, and the
+samples inside them.
+"""
 from io import SEEK_CUR
 import pcm
 
+def identify_module(file) -> str:
+    """
+    Determines the format of the module file provided and returns it as an
+    appropriate object.
+    """
+    magic = file.read(8)
+    if magic[:4] == b"IMPM":
+        return ImpulseTrackerIT(file)
+    if magic[:8] == b"ziRCONia":
+        raise NotImplementedError("MMCMP-compression isn't supported.")
+    if magic[:4] == b"\xc1\x83*\x9e":
+        raise NotImplementedError("UMX files aren't supported yet.")
+
+    file.seek(28)
+    sig_one = file.read(2)
+    file.seek(44)
+    sig_two = file.read(4)
+    if sig_one == b"\x1A\x10" and sig_two == b'SCRM':
+        return ScreamTracker3S3M(file)
+
+    return ProtrackerMOD(file)
 
 class ProtrackerMOD:
     """Retrieves sample data from Protracker MOD files."""
@@ -64,14 +89,14 @@ class ProtrackerMOD:
         return number_of_channels
 
     @staticmethod
-    def decode_sample_header(sample_bytes) -> dict:
-        """Returns a dict of the sample's header data decoded from sample_bytes."""
-        assert len(sample_bytes) == 30, "Sample header should be 30 bytes."
+    def decode_sample_header(header_bytes) -> dict:
+        """Returns a dict of the sample's header data decoded from header_bytes."""
+        assert len(header_bytes) == 30, "Sample header should be 30 bytes."
 
         sample = {}
 
-        sample["name"] = sample_bytes[:22].decode("ascii")
-        sample["length"] = int.from_bytes(sample_bytes[22:24], "big") * 2
+        sample["name"] = header_bytes[:22].decode("ascii")
+        sample["length"] = int.from_bytes(header_bytes[22:24], "big") * 2
 
         return sample
 
@@ -137,32 +162,32 @@ class ScreamTracker3S3M:
                     sample["data"] = pcm.signed_to_unsigned(sample["data"])
 
     @staticmethod
-    def decode_sample_header(sample_bytes) -> dict:
-        """Returns a dict of the sample's header data decoded from sample_bytes."""
-        assert len(sample_bytes) == 80, "Sample header should be 80 bytes."
-        assert sample_bytes[76:80] == b"SCRS", "Sample header should end with \"SCRS\"."
+    def decode_sample_header(header_bytes) -> dict:
+        """Returns a dict of the sample's header data decoded from header_bytes."""
+        assert len(header_bytes) == 80, "Sample header should be 80 bytes."
+        assert header_bytes[76:80] == b"SCRS", "Sample header should end with \"SCRS\"."
 
         sample = {}
 
         # skip DOS instrument filename
 
-        sample_parapointer_high = int.from_bytes(sample_bytes[13:14], "little")
-        sample_parapointer_low = int.from_bytes(sample_bytes[14:16], "little")
+        sample_parapointer_high = int.from_bytes(header_bytes[13:14], "little")
+        sample_parapointer_low = int.from_bytes(header_bytes[14:16], "little")
         # convert from 24-bit parapointer
         sample["pointer"] = (sample_parapointer_high >> 16) + sample_parapointer_low * 16
 
-        sample["length"] = int.from_bytes(sample_bytes[16:20], "little")
+        sample["length"] = int.from_bytes(header_bytes[16:20], "little")
 
-        sample["loop_start"] = int.from_bytes(sample_bytes[20:22], "little")
-        sample["loop_end"] = int.from_bytes(sample_bytes[24:26], "little")
+        sample["loop_start"] = int.from_bytes(header_bytes[20:22], "little")
+        sample["loop_end"] = int.from_bytes(header_bytes[24:26], "little")
 
         # skip volume & unused
 
-        pack = int.from_bytes(sample_bytes[30:31], "little")
+        pack = int.from_bytes(header_bytes[30:31], "little")
         if pack != 0:
             raise NotImplementedError("Samples packed in DP30ADPCM aren't supported.")
 
-        flags = int.from_bytes(sample_bytes[31:32], "little")
+        flags = int.from_bytes(header_bytes[31:32], "little")
         # if loop flag is off
         if not flags & 1:
             sample["loop_start"] = None
@@ -175,11 +200,11 @@ class ScreamTracker3S3M:
         else:
             sample["width"] = 8//8
 
-        sample["rate"] = int.from_bytes(sample_bytes[32:36], "little")
+        sample["rate"] = int.from_bytes(header_bytes[32:36], "little")
 
         # skip internal
 
-        sample["name"] = sample_bytes[48:76].decode("ascii")
+        sample["name"] = header_bytes[48:76].decode("ascii")
 
         return sample
 
@@ -227,7 +252,7 @@ class ImpulseTrackerIT:
 
     @staticmethod
     def decode_sample_header(header_bytes) -> dict:
-        """Returns a dict of the sample's header data decoded from sample_bytes."""
+        """Returns a dict of the sample's header data decoded from header_bytes."""
         assert len(header_bytes) == 80, "Sample header should be 80 bytes."
         assert header_bytes[:4] == b"IMPS", "Sample header should start with \"IMPS\"."
 
