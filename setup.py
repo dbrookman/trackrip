@@ -24,7 +24,9 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Topic :: Multimedia :: Sound/Audio",
-        "Topic :: Multimedia :: Sound/Audio :: Conversion"
+        "Topic :: Multimedia :: Sound/Audio :: Conversion",
+        "Topic :: Terminals",
+        "Topic :: Utilities'"
     ],
     keywords = "tracker music samples mod s3m it",
     packages = ["trackrip"],
