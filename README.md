@@ -14,7 +14,7 @@ Extracts samples from various music tracker module formats.
 
 Alternatively, you can download the source and run:
 
-`python setup.py install`
+`python3 setup.py install`
 
 ## Usage
 
