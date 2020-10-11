@@ -97,6 +97,15 @@ class ProtrackerMOD:
 
         sample["name"] = header_bytes[:22].decode("ascii")
         sample["length"] = int.from_bytes(header_bytes[22:24], "big") * 2
+        sample["loop_start"] = int.from_bytes(header_bytes[26:28], "big")
+        sample["loop_end"] = sample["loop_start"] + int.from_bytes(header_bytes[28:30], "big")
+        if sample["loop_end"] == 1:
+            sample["loop_start"] = 0
+            sample["loop_end"] = 0
+        else:
+            # convert from words to bytes
+            sample["loop_start"] *= 2
+            sample["loop_end"] *= 2
 
         return sample
 
