@@ -2,8 +2,14 @@
 A module for identifying and representing different tracker formats, and the
 samples inside them.
 """
+from enum import Enum
 from io import SEEK_CUR
 from . import pcm
+
+class LoopType(Enum):
+    OFF = 0
+    FORWARD = 1
+    PING_PONG = 2
 
 def identify_module(file) -> str:
     """
@@ -99,13 +105,17 @@ class ProtrackerMOD:
         sample["length"] = int.from_bytes(header_bytes[22:24], "big") * 2
         sample["loop_start"] = int.from_bytes(header_bytes[26:28], "big")
         sample["loop_end"] = sample["loop_start"] + int.from_bytes(header_bytes[28:30], "big")
-        if sample["loop_end"] == 1:
-            sample["loop_start"] = 0
-            sample["loop_end"] = 0
+        if sample["loop_start"] and sample["loop_end"]:
+            sample["loop_type"] = LoopType.FORWARD
+            if sample["loop_end"] == 1:
+                sample["loop_start"] = 0
+                sample["loop_end"] = 0
+            else:
+                # convert from words to bytes
+                sample["loop_start"] *= 2
+                sample["loop_end"] *= 2
         else:
-            # convert from words to bytes
-            sample["loop_start"] *= 2
-            sample["loop_end"] *= 2
+            sample["loop_type"] = LoopType.OFF
 
         return sample
 
@@ -199,8 +209,9 @@ class ScreamTracker3S3M:
         flags = int.from_bytes(header_bytes[31:32], "little")
         # if loop flag is off
         if not flags & 1:
-            sample["loop_start"] = None
-            sample["loop_end"] = None
+            sample["loop_type"] = LoopType.OFF
+        else:
+            sample["loop_type"] = LoopType.FORWARD
         if flags & 2:
             raise NotImplementedError("Stereo samples aren't supported.")
         # 16-bit sample
@@ -273,10 +284,18 @@ class ImpulseTrackerIT:
         # assert (flags >> 0) & 1 == 1
         # on = 16-bit, off = 8-bit
         sample["width"] = 16//8 if (flags >> 1) & 1 else 8//8
-        if (flags >> 3) & 1:
+        if (flags >> 2) & 1:
             raise NotImplementedError("Stereo samples aren't supported.")
-        sample["compressed"] = bool((flags >> 4) & 1)
-        # skip loop flags
+        sample["compressed"] = bool((flags >> 3) & 1)
+        loop_flag = bool((flags >> 4) & 1)
+        ping_pong_flag = bool((flags >> 6) & 1)
+        if loop_flag:
+            if ping_pong_flag:
+                sample["loop_type"] = LoopType.PING_PONG
+            else:
+                sample["loop_type"] = LoopType.FORWARD
+        else:
+            sample["loop_type"] = LoopType.OFF
 
         # skip instrument volume
 

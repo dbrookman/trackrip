@@ -49,7 +49,7 @@ def main():
                 out.writeframes(sample["data"])
                 out.close()
 
-                if sample["loop_start"] and sample["loop_end"]:
+                if sample["loop_type"] != tracker.LoopType.OFF:
                     smpl_chunk = b"smpl"
                     # chunk size
                     smpl_chunk += int(36 + (1 * 24) + 0).to_bytes(4, "little")
@@ -71,8 +71,14 @@ def main():
                     # sampler data
                     smpl_chunk += bytes(4)
                     # sample loops
-                    # cue point ID, type
-                    smpl_chunk += bytes(8)
+                    # cue point ID
+                    smpl_chunk += bytes(4)
+                    # loop type
+                    if sample["loop_type"] == tracker.LoopType.OFF or sample["loop_type"] == tracker.LoopType.FORWARD:
+                        smpl_loop_type = 0
+                    elif sample["loop_type"] == tracker.LoopType.PING_PONG:
+                        smpl_loop_type = 1
+                    smpl_chunk += int(smpl_loop_type).to_bytes(4, "little")
                     # loop start
                     smpl_chunk += int(sample["loop_start"]).to_bytes(4, "little")
                     # loop end
