@@ -11,17 +11,17 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("mod", help="a valid MOD, S3M or IT file", type=Path)
-    parser.add_argument("-o", "--output_path", type=Path)
+    parser.add_argument("-o", "--output_dir", type=Path)
 
     args = parser.parse_args()
 
     with open(args.mod, "rb") as file:
-        if args.output_path:
-            output_path = Path(Path.cwd(), args.output_path).resolve()
-            if not Path(output_path).is_dir():
+        if args.output_dir:
+            output_dir = Path(Path.cwd(), args.output_dir).resolve()
+            if not Path(output_dir).is_dir():
                 raise NotADirectoryError("Output directory does not exist.")
         else:
-            output_path = Path(Path.cwd())
+            output_dir = Path(Path.cwd())
 
         mod_file = tracker.identify_module(file)
         print("TITLE: " + mod_file.title)
@@ -40,8 +40,8 @@ def main():
                 print("[Exporting Sample] " + sample_file_name)
                 sample_file_name += ".wav"
 
-                output = output_path / sample_file_name
-                out = wave.open(str(output), "wb")
+                output_path = output_dir / sample_file_name
+                out = wave.open(str(output_path), "wb")
                 out.setnchannels(1)
                 out.setsampwidth(sample["width"])
                 out.setframerate(sample["rate"])
