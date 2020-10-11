@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 import string
 import wave
+from math import floor
 from . import tracker
 
 def main():
@@ -47,6 +48,40 @@ def main():
                 out.setframerate(sample["rate"])
                 out.writeframes(sample["data"])
                 out.close()
+
+                if sample["loop_start"] and sample["loop_end"]:
+                    smpl_chunk = b"smpl"
+                    # chunk size
+                    smpl_chunk += int(36 + (1 * 24) + 0).to_bytes(4, "little")
+                    # manufacturer & product
+                    smpl_chunk += bytes(8)
+                    # saample period
+                    smpl_chunk += int(floor(1000000000 / sample["rate"])).to_bytes(4, "little")
+
+                    # TODO: figure me out
+                    # midi unity note
+                    smpl_chunk += bytes(4)
+                    # midi pitch fraction
+                    smpl_chunk += bytes(4)
+
+                    # smpte format & offset
+                    smpl_chunk += bytes(8)
+                    # number of sampler loops (should always be 1)
+                    smpl_chunk += int(1).to_bytes(4, "little")
+                    # sampler data
+                    smpl_chunk += bytes(4)
+                    # sample loops
+                    # cue point ID, type
+                    smpl_chunk += bytes(8)
+                    # loop start
+                    smpl_chunk += int(sample["loop_start"]).to_bytes(4, "little")
+                    # loop end
+                    smpl_chunk += int(sample["loop_end"] - 1).to_bytes(4, "little")
+                    # fration, play count
+                    smpl_chunk += bytes(8)
+
+                    with open(output_path, "ab") as file:
+                        file.write(smpl_chunk)
 
 
 if __name__ == "__main__":
