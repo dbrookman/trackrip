@@ -289,8 +289,8 @@ class ImpulseTrackerIT:
 
         # length of sample is stored in no. of samples NOT no. of bytes
         sample["length"] = int.from_bytes(header_bytes[48:52], "little") * sample["width"]
-        sample["loop_start"] = int.from_bytes(header_bytes[52:56], "little") * sample["width"]
-        sample["loop_end"] = int.from_bytes(header_bytes[56:60], "little") * sample["width"]
+        sample["loop_start"] = int.from_bytes(header_bytes[52:56], "little")
+        sample["loop_end"] = int.from_bytes(header_bytes[56:60], "little")
 
         sample["rate"] = int.from_bytes(header_bytes[60:64], "little")
 

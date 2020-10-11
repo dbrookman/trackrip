@@ -59,8 +59,8 @@ def main():
                     smpl_chunk += int(floor(1000000000 / sample["rate"])).to_bytes(4, "little")
 
                     # TODO: figure me out
-                    # midi unity note
-                    smpl_chunk += bytes(4)
+                    # midi unity note, 60 = middle C
+                    smpl_chunk += int(60).to_bytes(4, "little")
                     # midi pitch fraction
                     smpl_chunk += bytes(4)
 
