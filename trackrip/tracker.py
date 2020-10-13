@@ -267,7 +267,7 @@ class ImpulseTrackerIT:
                 else:
                     sample["data"] = self.decompress_it_sample(sample_data)
                 # HACK: don't know why 8-bit samples are signed while 16-bit samples are unsigned
-                if sample["width"] == 1 or not sample["signed"]:
+                if sample["width"] == 1 or sample["signed"]:
                     sample["data"] = pcm.signed_to_unsigned(sample["data"])
 
     @staticmethod
@@ -304,7 +304,7 @@ class ImpulseTrackerIT:
         # skip default pan
 
         convert = int.from_bytes(header_bytes[46:47], "big")
-        sample["signed"] = bool(convert & 1)
+        sample["signed"] = bool(convert & 0)
 
         # length of sample is stored in no. of samples NOT no. of bytes
         sample["length"] = int.from_bytes(header_bytes[48:52], "little") * sample["width"]
