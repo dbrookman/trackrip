@@ -1,8 +1,11 @@
 """For modifying PCM data."""
 
 def signed_to_unsigned(data):
-    # TODO: Figure out exactly why this works.
-    """Converts signed data to unsigned data"""
+    """
+    Converts signed data to unsigned data
+    (that's not exactly what this does but I'm not sure what to call it)
+    TODO: Figure out exactly why this works.
+    """
     converted = bytearray()
     for byte in data:
         if byte > 127:

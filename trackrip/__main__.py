@@ -92,7 +92,6 @@ def main():
                     # if we add a smpl chunk, we need to update the ChunkSize
                     file_size = Path(output_path).stat().st_size
                     with open(output_path, "r+b") as file:
-                        print(output_path, file_size)
                         file.seek(4)
                         # ChunkSize doesn't count "RIFF" or itself
                         file.write((file_size - 8).to_bytes(4, "little"))

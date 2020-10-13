@@ -3,6 +3,7 @@
 *.xm
 *.it
 *.wav
+*.asd
 examples/
 
 # Byte-compiled / optimized / DLL files
