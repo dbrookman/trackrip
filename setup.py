@@ -26,7 +26,7 @@ setup(
         "Topic :: Multimedia :: Sound/Audio",
         "Topic :: Multimedia :: Sound/Audio :: Conversion",
         "Topic :: Terminals",
-        "Topic :: Utilities'"
+        "Topic :: Utilities"
     ],
     keywords = "tracker music samples mod s3m it",
     packages = ["trackrip"],
