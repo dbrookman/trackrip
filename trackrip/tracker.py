@@ -264,9 +264,12 @@ class ImpulseTrackerIT:
                     sample["data"] = sample_data
                 else:
                     sample["data"] = self.decompress_it_sample(sample_data)
-                # HACK: don't know why 8-bit samples are signed while 16-bit samples are unsigned
-                if sample["width"] == 1 or sample["signed"]:
+                # python's wave module always outputs 8-bit samples as unsigned,
+                # and 16-bit samples as signed.
+                if sample["signed"] and sample["width"] == 1:
                     sample["data"] = pcm.signed_to_unsigned_8bit(sample["data"])
+                elif not sample["signed"] and sample["width"] == 2:
+                    raise NotImplementedError("Unsigned 16-bit samples aren't supported yet.")
 
     @staticmethod
     def decode_sample_header(header_bytes) -> dict:
