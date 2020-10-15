@@ -7,7 +7,6 @@ Extracts samples from various music tracker module formats.
     - __MOD__
     - __S3M__
     - __IT__
-    - __UMX__
 
 ## Installation
 
