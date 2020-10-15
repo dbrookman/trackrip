@@ -3,7 +3,8 @@ A module for identifying and representing different tracker formats, and the
 samples inside them.
 """
 from enum import Enum
-from io import SEEK_CUR
+from io import SEEK_CUR, BytesIO
+
 from . import pcm
 
 class LoopType(Enum):
@@ -22,7 +23,7 @@ def identify_module(file) -> str:
     if magic[:8] == b"ziRCONia":
         raise NotImplementedError("MMCMP-compression isn't supported.")
     if magic[:4] == b"\xc1\x83*\x9e":
-        raise NotImplementedError("UMX files aren't supported yet.")
+        return UnrealEngineUMX(file)
 
     file.seek(28)
     sig_one = file.read(2)
@@ -325,3 +326,99 @@ class ImpulseTrackerIT:
     @staticmethod
     def decompress_it_sample(sample_bytes) -> bytes:
         raise NotImplementedError("IT214 sample compression isn't supported yet.")
+
+class UnrealEngineUMX:
+    """Retrieves module file contained within an Unreal Engine UMX package file."""
+
+    def __init__(self, file):
+        self.file = file
+
+        self.file.seek(4)
+        version = int.from_bytes(file.read(4), "little")
+        if version < 61:
+            raise NotImplementedError("UMX files under version 61 aren't supported.")
+        self.file.seek(4, SEEK_CUR) # skip package flags
+
+        name_table_count = int.from_bytes(self.file.read(4), "little")
+        name_table_offset = int.from_bytes(self.file.read(4), "little")
+        export_table_count = int.from_bytes(self.file.read(4), "little")
+        export_table_offset = int.from_bytes(self.file.read(4), "little")
+
+        if export_table_count > 1:
+            raise TypeError("Unreal Package contains more than one exported object.")
+
+        self.file.seek(name_table_offset)
+        name_table_index = 0
+        names = []
+        while name_table_index < name_table_count:
+            if version > 61:
+                current_name_length = int.from_bytes(self.file.read(1), "little")
+                names.append(self.file.read(current_name_length - 1).decode("ascii"))
+                self.file.seek(1, SEEK_CUR) # skip terminating zero
+            else:
+                at_terminating_zero = False
+                name = str()
+                while not at_terminating_zero:
+                    byte = self.file.read(1)
+                    if not byte == b"\x00":
+                        name += byte.decode()
+                    else:
+                        names.append(name)
+                        at_terminating_zero = True
+            self.file.seek(4, SEEK_CUR) # skip  object flags
+            name_table_index += 1
+
+        if "Music" not in names:
+            raise TypeError("Unreal Package File does not contain music.")
+
+        self.file.seek(export_table_offset)
+        self.read_compact_index() # skip class index
+        self.read_compact_index() # skip super index
+        self.file.seek(4, SEEK_CUR) # skip package index
+        self.read_compact_index() # skip object name
+        self.file.seek(4, SEEK_CUR) # skip object flags
+        self.read_compact_index() # skip serial size
+        serial_offset = self.read_compact_index()
+
+        self.file.seek(serial_offset)
+        self.file.seek(2, SEEK_CUR) # skip chunk count
+        if version > 61:
+            self.file.seek(4, SEEK_CUR) # skip following byte position
+        chunk_size = self.read_compact_index() # serial size minus the object's header
+        embedded_stream = BytesIO(self.file.read(chunk_size))
+        embedded_file = identify_module(embedded_stream)
+
+        self.title = embedded_file.title
+        self.samples = embedded_file.samples
+
+    def read_compact_index(self):
+        """
+        Reads a byte (or more depending on continue flags) at self.file's stream
+        position.
+        Converts these byte(s) from a compact index into an integer, and returns
+        it.
+        """
+        compact_index = ""
+
+        first_byte = int.from_bytes(self.file.read(1), "little")
+        if first_byte == 0:
+            return 0
+        negative_flag = bool(first_byte & 0b10000000)
+        continue_flag = bool(first_byte & 0b01000000)
+        first_byte_binary = bin(first_byte & 0b00111111)[2:]
+        while len(first_byte_binary) < 6:
+            first_byte_binary = str(0) + first_byte_binary
+        compact_index = first_byte_binary
+
+        while continue_flag:
+            other_byte = int.from_bytes(self.file.read(1), "little")
+            other_byte_binary = bin(other_byte & 0b01111111)[2:]
+            while len(other_byte_binary) < 7:
+                other_byte_binary = str(0) + other_byte_binary
+            compact_index = other_byte_binary + compact_index
+            continue_flag = bool(other_byte & 0b10000000)
+
+        value = int(compact_index, 2)
+        if negative_flag:
+            value = -value
+        return value
