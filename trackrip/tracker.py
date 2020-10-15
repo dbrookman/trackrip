@@ -132,8 +132,6 @@ class ProtrackerMOD:
 class ScreamTracker3S3M:
     """Retrieves sample data from ScreamTracker 3 S3M files."""
 
-    SAMPLE_WIDTH = 8 // 8
-
     def __init__(self, file):
         self.file = file
 
@@ -281,14 +279,16 @@ class ImpulseTrackerIT:
         #skip DOS filename, blank and global volume
 
         flags = int.from_bytes(header_bytes[18:19], "big")
+
         # assert (flags >> 0) & 1 == 1
         # on = 16-bit, off = 8-bit
-        sample["width"] = 16//8 if (flags >> 1) & 1 else 8//8
-        if (flags >> 2) & 1:
+        sample["width"] = 16//8 if bool(flags & 0b00000010) else 8//8
+        stereo_flag = bool(flags & 0b00000100)
+        if stereo_flag:
             raise NotImplementedError("Stereo samples aren't supported.")
-        sample["compressed"] = bool((flags >> 3) & 1)
-        loop_flag = bool((flags >> 4) & 1)
-        ping_pong_flag = bool((flags >> 6) & 1)
+        sample["compressed"] = bool(flags & 0b00001000)
+        loop_flag = bool(flags & 0b00010000)
+        ping_pong_flag = bool(flags & 0b00100000)
         if loop_flag:
             if ping_pong_flag:
                 sample["loop_type"] = LoopType.PING_PONG
@@ -303,8 +303,8 @@ class ImpulseTrackerIT:
 
         # skip default pan
 
-        convert = int.from_bytes(header_bytes[46:47], "big")
-        sample["signed"] = bool(convert & 0)
+        convert = int.from_bytes(header_bytes[46:47], "little")
+        sample["signed"] = bool(convert & 0b00000001)
 
         # length of sample is stored in no. of samples NOT no. of bytes
         sample["length"] = int.from_bytes(header_bytes[48:52], "little") * sample["width"]
