@@ -1,9 +1,9 @@
 """For modifying PCM data."""
 
-def signed_to_unsigned(data):
+def signed_to_unsigned_8bit(data):
     """
-    Converts signed data initally read as unsigned data to its original relative
-    position.
+    Converts 8-bit signed data initally read as unsigned data back to its
+    original relative position.
     """
     # Python reads bytes as unsigned chars (0 to 255).
     # For example: Byte "FF" in a signed file is -1, but Python will read it
