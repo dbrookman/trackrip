@@ -7,6 +7,7 @@ Extracts samples from various music tracker module formats.
     - __MOD__
     - __S3M__
     - __IT__
+    - __UMX__
 
 ## Installation
 
@@ -32,4 +33,8 @@ Alternatively, you can download the source and run:
 ### Impulse Tracker IT Format
 * [ITTECH.TXT](https://ia600506.us.archive.org/view_archive.php?archive=/4/items/msdos_it214c_shareware/it214c.zip&file=ITTECH.TXT)
 * [IT214 sample compression](https://wiki.multimedia.cx/index.php/Impulse_Tracker#IT214_sample_compression) on MultimediaWiki.
-
+### Unreal Engine UMX Container Format
+* [Unreal Packages](https://web.archive.org/web/19991006025316fw_/http://unreal.epicgames.com/Packages.htm) by Tim Sweeney.
+* [Unreal Tournament Package File Format](https://bunnytrack.net/ut-package-format/)
+* [Package File Format](https://wiki.beyondunreal.com/Legacy:Package_File_Format) on Unreal Wiki.
+* [UT Package File Format document v1.6](https://www.acordero.org/download/utpdldoc16/) by Antonio Cordero Balcázar.
