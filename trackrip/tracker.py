@@ -321,5 +321,4 @@ class ImpulseTrackerIT:
 
     @staticmethod
     def decompress_it_sample(sample_bytes) -> bytes:
-        # TODO: investigate compression flag
-        return sample_bytes
+        raise NotImplementedError("IT214 sample compression isn't supported yet.")
