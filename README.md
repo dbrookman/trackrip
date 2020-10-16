@@ -28,7 +28,7 @@ Alternatively, you can download the source and run:
 * [MOD Player Tutorial](https://modland.com/pub/documents/format_documentation/FireLight%20MOD%20Player%20Tutorial.txt) by FireLight
 ### Scream Tracker 3 S3M Format
 * [Scream Tracker 3.01 BETA File Formats And Mixing Info](http://www.textfiles.com/programming/FORMATS/s3m-form.txt)
-* [S3M Format](http://www.shikadi.net/moddingwiki/S3M_Format) on the DOS Game Modding Wiki.
+* [S3M Format](http://www.shikadi.net/moddingwiki/S3M_Format) on the DOS Game Modding Wiki
 * [S3M Player Tutorial](https://modland.com/pub/documents/format_documentation/FireLight%20S3M%20Player%20Tutorial.txt) by FireLight
 ### Impulse Tracker IT Format
 * [ITTECH.TXT](https://ia600506.us.archive.org/view_archive.php?archive=/4/items/msdos_it214c_shareware/it214c.zip&file=ITTECH.TXT)
