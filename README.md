@@ -24,7 +24,7 @@ Alternatively, you can download the source and run:
 ## Useful Links
 ### ProTracker MOD Format
 * [Noisetracker/Soundtracker/Protracker Module Format](https://www.aes.id.au/modformat.html) -  4th Revision
-* [Protracker Module](https://wiki.multimedia.cx/index.php/Protracker_Module) on MultimediaWiki.
+* [Protracker Module](https://wiki.multimedia.cx/index.php/Protracker_Module) on MultimediaWiki
 * [MOD Player Tutorial](https://modland.com/pub/documents/format_documentation/FireLight%20MOD%20Player%20Tutorial.txt) by FireLight
 ### Scream Tracker 3 S3M Format
 * [Scream Tracker 3.01 BETA File Formats And Mixing Info](http://www.textfiles.com/programming/FORMATS/s3m-form.txt)
@@ -32,9 +32,9 @@ Alternatively, you can download the source and run:
 * [S3M Player Tutorial](https://modland.com/pub/documents/format_documentation/FireLight%20S3M%20Player%20Tutorial.txt) by FireLight
 ### Impulse Tracker IT Format
 * [ITTECH.TXT](https://ia600506.us.archive.org/view_archive.php?archive=/4/items/msdos_it214c_shareware/it214c.zip&file=ITTECH.TXT)
-* [IT214 sample compression](https://wiki.multimedia.cx/index.php/Impulse_Tracker#IT214_sample_compression) on MultimediaWiki.
+* [IT214 sample compression](https://wiki.multimedia.cx/index.php/Impulse_Tracker#IT214_sample_compression) on MultimediaWiki
 ### Unreal Engine UMX Container Format
-* [Unreal Packages](https://web.archive.org/web/19991006025316fw_/http://unreal.epicgames.com/Packages.htm) by Tim Sweeney.
-* [Unreal Tournament Package File Format](https://bunnytrack.net/ut-package-format/) by Sapphire.
-* [Package File Format](https://wiki.beyondunreal.com/Legacy:Package_File_Format) on Unreal Wiki.
-* [UT Package File Format document v1.6](https://www.acordero.org/download/utpdldoc16/) by Antonio Cordero Balcázar.
+* [Unreal Packages](https://web.archive.org/web/19991006025316fw_/http://unreal.epicgames.com/Packages.htm) by Tim Sweeney
+* [Unreal Tournament Package File Format](https://bunnytrack.net/ut-package-format/) by Sapphire
+* [Package File Format](https://wiki.beyondunreal.com/Legacy:Package_File_Format) on Unreal Wiki
+* [UT Package File Format document v1.6](https://www.acordero.org/download/utpdldoc16/) by Antonio Cordero Balcázar
