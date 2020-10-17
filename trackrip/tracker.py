@@ -284,7 +284,6 @@ class ImpulseTrackerIT:
 
         flags = int.from_bytes(header_bytes[18:19], "big")
 
-        # assert (flags >> 0) & 1 == 1
         # on = 16-bit, off = 8-bit
         sample["width"] = 16//8 if bool(flags & 0b00000010) else 8//8
         stereo_flag = bool(flags & 0b00000100)
