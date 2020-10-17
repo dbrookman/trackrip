@@ -32,12 +32,8 @@ def main():
             if sample["length"] > 0:
                 sample_file_name = str(sample["number"])
                 sample["name"] = "".join(filter(lambda x: x in set(string.printable), sample["name"]))
-                if sample["name"] != "":
-                    sample_file_name += " - " + sample["name"]
-                keepcharacters = (" ", ".", "_", "-")
-                sample_file_name = "".join(c for c in sample_file_name if
-                                           c.isalnum() or c in
-                                           keepcharacters).rstrip()
+                if sample["name"] != "" and not sample["name"].isspace():
+                    sample_file_name += " - " + sample["name"].strip()
                 print("[Exporting Sample] " + sample_file_name)
                 sample_file_name += ".wav"
 
