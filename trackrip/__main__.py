@@ -35,10 +35,10 @@ def main():
                 sample["name"] = "".join(filter(lambda x: x in set(string.printable), sample["name"]))
                 if sample["name"] != "" and not sample["name"].isspace():
                     sample_file_name += " - " + sample["name"].strip()
-                                
-                #   Remove chars that aren't friendly to filesystems (mostly Windows).  
-                #   Cracktro musicians love to include fancy chars in their sample names.
-                sample_file_name = re.sub(r'[^\w\s\d-]','_',sample_file_name)
+
+                # remove chars unfriendly to some filesystems (NTFS, etc)
+                # cracktro musicians love to include fancy chars in their sample names
+                sample_file_name = re.sub(r"[^\w\s\d-]", "_", sample_file_name)
 
                 sample_file_name += ".wav"
 
