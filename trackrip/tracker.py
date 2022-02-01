@@ -316,7 +316,7 @@ class ImpulseTrackerIT:
 
         sample["rate"] = int.from_bytes(header_bytes[60:64], "little")
 
-        #skip sustain loop start / end
+        # skip sustain loop start / end
 
         sample["pointer"] = int.from_bytes(header_bytes[72:76], "little")
 

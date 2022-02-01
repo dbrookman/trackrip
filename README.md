@@ -8,6 +8,7 @@ Extracts samples from various music tracker module formats.
     - __S3M__
     - __IT__
     - __UMX__
+- Exported samples have existing loop parameters embeded.
 
 ## Installation
 

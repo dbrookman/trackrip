@@ -53,12 +53,13 @@ def main():
                 out.close()
 
                 if sample["loop_type"] != tracker.LoopType.OFF:
+                    # construct sample chunk
                     smpl_chunk = b"smpl"
                     # chunk size
                     smpl_chunk += int(36 + (1 * 24) + 0).to_bytes(4, "little")
                     # manufacturer & product
                     smpl_chunk += bytes(8)
-                    # saample period
+                    # sample period
                     smpl_chunk += int(floor(1000000000 / sample["rate"])).to_bytes(4, "little")
 
                     # TODO: figure me out
