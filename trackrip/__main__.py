@@ -6,6 +6,7 @@ import string
 import wave
 from math import floor
 from . import tracker
+import re
 
 def main():
     """Parses, opens and extracts samples from a tracker module file."""
@@ -34,8 +35,14 @@ def main():
                 sample["name"] = "".join(filter(lambda x: x in set(string.printable), sample["name"]))
                 if sample["name"] != "" and not sample["name"].isspace():
                     sample_file_name += " - " + sample["name"].strip()
-                print("[Exporting Sample] " + sample_file_name)
+                                
+                #   Remove chars that aren't friendly to filesystems (mostly Windows).  
+                #   Cracktro musicians love to include fancy chars in their sample names.
+                sample_file_name = re.sub(r'[^\w\s\d-]','_',sample_file_name)
+
                 sample_file_name += ".wav"
+
+                print("[Exporting Sample] " + sample_file_name)
 
                 output_path = output_dir / sample_file_name
                 out = wave.open(str(output_path), "wb")
