@@ -48,7 +48,11 @@ class ProtrackerMOD:
         self.identifier = self.file.read(4)
 
         self.file.seek(0)
-        self.title = self.file.read(20).decode("ascii")
+        try:
+            self.title = self.file.read(20).decode("ascii")
+        except UnicodeDecodeError:
+            # can't get a title? not a mod file
+            raise TypeError("File is not a tracker module.")
 
         self.samples = []
         for _ in range(self.get_sample_count()):
