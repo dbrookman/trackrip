@@ -347,6 +347,17 @@ class FastTracker2XM:
             # skip 0x1A & tracker name
             self.file.seek(21, SEEK_CUR)
 
+            version = list(file.read(2))
+            # older versions of the XM format below $0104 could break things
+            version_major = version[1]
+            version_minor = version[0]
+            old_version_error = "XM files under version $0104 aren't supported."
+            if version_major < 1:
+                raise NotImplementedError(old_version_error)
+            else:
+                if version_minor < 4:
+                    raise NotImplementedError(old_version_error)
+            print("Format version is $0104 or later.")
             exit()
 
 class UnrealEngineUMX:
