@@ -26,7 +26,7 @@ def identify_module(file) -> str:
     if magic[:4] == b"\xc1\x83*\x9e":
         return UnrealEngineUMX(file)
     if magic[:17] == b"Extended Module: ":
-        raise NotImplementedError("Parsing XM files isn't supported yet.")
+        return FastTracker2XM(file)
 
     file.seek(28)
     sig_one = file.read(2)
@@ -333,6 +333,21 @@ class ImpulseTrackerIT:
     @staticmethod
     def decompress_it_sample(sample_bytes) -> bytes:
         raise NotImplementedError("IT214 sample compression isn't supported yet.")
+
+class FastTracker2XM:
+    """Retrieves sample data from FastTracker 2 XM files."""
+
+    def __init__(self, file):
+            self.file = file
+
+            self.file.seek(17)
+            self.title = self.file.read(20).decode("ascii")
+            print(self.title)
+
+            # skip 0x1A & tracker name
+            self.file.seek(21, SEEK_CUR)
+
+            exit()
 
 class UnrealEngineUMX:
     """Retrieves module file contained within an Unreal Engine UMX package file."""
