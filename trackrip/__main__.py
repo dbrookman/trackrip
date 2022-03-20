@@ -78,7 +78,8 @@ def main():
                     # cue point ID
                     smpl_chunk += bytes(4)
                     # loop type
-                    if sample["loop_type"] == tracker.LoopType.OFF or sample["loop_type"] == tracker.LoopType.FORWARD:
+                    if sample["loop_type"] in (tracker.LoopType.OFF,
+                                               tracker.LoopType.FORWARD):
                         smpl_loop_type = 0
                     elif sample["loop_type"] == tracker.LoopType.PING_PONG:
                         smpl_loop_type = 1
