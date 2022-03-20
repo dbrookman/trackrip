@@ -51,9 +51,10 @@ class ProtrackerMOD:
         self.file.seek(0)
         try:
             self.title = self.file.read(20).decode("ascii")
-        except UnicodeDecodeError:
-            # can't get a title? not a mod file
-            raise TypeError("File is not a tracker module.")
+        # BUG: many files' first 20 bytes are ASCII, we need a better failsafe
+        except UnicodeDecodeError as error:
+            # can't get an ASCII title? not a mod file
+            raise TypeError("File is not a tracker module.") from error
 
         self.samples = []
         for _ in range(self.get_sample_count()):
