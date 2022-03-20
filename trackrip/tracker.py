@@ -18,13 +18,15 @@ def identify_module(file) -> str:
     Determines the format of the module file provided and returns it as an
     appropriate object.
     """
-    magic = file.read(8)
+    magic = file.read(17)
     if magic[:4] == b"IMPM":
         return ImpulseTrackerIT(file)
     if magic[:8] == b"ziRCONia":
         raise NotImplementedError("MMCMP-compression isn't supported.")
     if magic[:4] == b"\xc1\x83*\x9e":
         return UnrealEngineUMX(file)
+    if magic[:17] == b"Extended Module: ":
+        raise NotImplementedError("Parsing XM files isn't supported yet.")
 
     file.seek(28)
     sig_one = file.read(2)
