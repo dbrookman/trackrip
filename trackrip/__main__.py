@@ -32,7 +32,10 @@ def main():
             sample_file_name = ""
             if sample["length"] > 0:
                 sample_file_name = str(sample["number"])
-                sample["name"] = "".join(filter(lambda x: x in set(string.printable), sample["name"]))
+                # ???: do we still need this, if we're also using re.sub below?
+                sample["name"] = "".join(filter(lambda x: x in
+                                                set(string.printable),
+                                                sample["name"]))
                 if sample["name"] != "" and not sample["name"].isspace():
                     sample_file_name += " - " + sample["name"].strip()
 
