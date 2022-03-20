@@ -8,6 +8,7 @@ from io import SEEK_CUR, BytesIO
 from . import pcm
 
 class LoopType(Enum):
+    """Enumerate types of sample looping."""
     OFF = 0
     FORWARD = 1
     PING_PONG = 2
