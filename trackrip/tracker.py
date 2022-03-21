@@ -357,7 +357,10 @@ class FastTracker2XM:
             else:
                 if version_minor < 4:
                     raise NotImplementedError(old_version_error)
-            print("Format version is $0104 or later.")
+
+            # this doesn't include the previous bytes, so we add 60 for them
+            xm_header_size = int.from_bytes(self.file.read(4), "little") + 60
+
             exit()
 
 class UnrealEngineUMX:
