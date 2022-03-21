@@ -366,6 +366,13 @@ class FastTracker2XM:
             if song_length < 1 or song_length > 256:
                 raise ValueError("XM files must have a length between 1-256.")
 
+            # skip restart position
+            self.file.seek(2, SEEK_CUR)
+
+            channel_count = int.from_bytes(self.file.read(2), "little")
+            pattern_count = int.from_bytes(self.file.read(2), "little")
+            instrument_count = int.from_bytes(self.file.read(2), "little")
+
             exit()
 
 class UnrealEngineUMX:
