@@ -373,6 +373,24 @@ class FastTracker2XM:
             pattern_count = int.from_bytes(self.file.read(2), "little")
             instrument_count = int.from_bytes(self.file.read(2), "little")
 
+            # skip flags, tempo, bpm, pattern order table & any weird extra data
+            # jump directly to the first pattern header
+            self.file.seek(xm_header_size)
+
+            for i in range(pattern_count):
+                pattern_header_size = int.from_bytes(self.file.read(4), "little")
+
+                # skip packing type & rows per pattern
+                self.file.seek(3, SEEK_CUR)
+
+                pattern_data_size = int.from_bytes(self.file.read(2), "little")
+                self.file.seek(pattern_data_size, SEEK_CUR)
+
+                # skip any extra data that's left over in the pattern header
+                # past the regular 9 bytes
+                if pattern_data_size > 9:
+                    self.file.seek(pattern_header_size - 9, SEEK_CUR)
+
             exit()
 
 class UnrealEngineUMX:
