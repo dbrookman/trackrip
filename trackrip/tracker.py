@@ -361,6 +361,11 @@ class FastTracker2XM:
             # this doesn't include the previous bytes, so we add 60 for them
             xm_header_size = int.from_bytes(self.file.read(4), "little") + 60
 
+            # size of the pattern order table in bytes
+            song_length = int.from_bytes(self.file.read(2), "little")
+            if song_length < 1 or song_length > 256:
+                raise ValueError("XM files must have a length between 1-256.")
+
             exit()
 
 class UnrealEngineUMX:
