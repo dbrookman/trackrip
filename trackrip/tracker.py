@@ -391,6 +391,34 @@ class FastTracker2XM:
                 if pattern_data_size > 9:
                     self.file.seek(pattern_header_size - 9, SEEK_CUR)
 
+            self.samples = []
+
+            for i in range(instrument_count):
+                instrument_header_size = int.from_bytes(self.file.read(4), "little")
+                # skip instrument type & name
+                self.file.seek(23, SEEK_CUR)
+                instrument_sample_count = int.from_bytes(self.file.read(2), "little")
+
+                # skip any extra data that's left over in the instrument header
+                # past the regular 29 bytes, like the extra sample header
+                if instrument_header_size > 29:
+                    self.file.seek(instrument_header_size - 29, SEEK_CUR)
+                if instrument_sample_count > 0:
+                    instrument_samples = []
+
+                    for sample in range(instrument_sample_count):
+                        sample = {}
+
+                        sample["length"] = int.from_bytes(self.file.read(4), "little")
+                        # skip the middle portion of the sample's header
+                        self.file.seek(14, SEEK_CUR)
+                        sample["name"] = self.file.read(22).decode("ascii")
+                        instrument_samples.append(sample)
+
+                    # skip sample data
+                    for sample in instrument_samples:
+                        self.file.seek(sample["length"], SEEK_CUR)
+                        self.samples.append(sample)
             exit()
 
 class UnrealEngineUMX:
