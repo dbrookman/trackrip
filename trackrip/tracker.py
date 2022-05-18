@@ -23,7 +23,7 @@ def identify_module(file) -> str:
         return ImpulseTrackerIT(file)
     if magic[:8] == b"ziRCONia":
         raise NotImplementedError("MMCMP-compression isn't supported.")
-    if magic[:4] == b"\xc1\x83*\x9e":
+    if magic[:4] == b"\xC1\x83\x2A\x9E":
         return UnrealEngineUMX(file)
 
     file.seek(28)
