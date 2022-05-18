@@ -410,8 +410,20 @@ class FastTracker2XM:
                         sample = {}
 
                         sample["length"] = int.from_bytes(self.file.read(4), "little")
-                        # skip the middle portion of the sample's header
-                        self.file.seek(14, SEEK_CUR)
+                        sample["loop_start"] = int.from_bytes(self.file.read(4), "little")
+                        sample["loop_end"] = int.from_bytes(self.file.read(4), "little")
+                        # skip volume
+                        self.file.seek(1, SEEK_CUR)
+                        fine_tune = int.from_bytes(self.file.read(1), "little", signed=True)
+                        # FIX: GET LOOPTYPE FROM FLAG TOO
+                        type_flag = int.from_bytes(self.file.read(1), "little")
+                        sample["loop_type"] = LoopType.OFF
+                        sample["width"] = 16//8 if bool(type_flag & 0b00010000) else 8//8
+                        # skip pan
+                        self.file.seek(1, SEEK_CUR)
+                        relative_note = int.from_bytes(self.file.read(1), "little", signed=True)
+                        # skip reserved (ADPCM compression flag?)
+                        self.file.seek(1, SEEK_CUR)
                         sample["name"] = self.file.read(22).decode("ascii")
                         instrument_samples.append(sample)
 
