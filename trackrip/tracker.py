@@ -452,10 +452,13 @@ class FastTracker2XM:
                             period = 7680 - (real_note * 64) - (fine_tune / 2)
                             frequency = 8363 * 2**((4608 - period) / 768)
                             sample["rate"] = int(frequency)
+
                     for sample in instrument_samples:
-                        self.file.seek(sample["length"], SEEK_CUR)
+                        sample["data"] = self.file.read(sample["length"])
+                        # FIX: need to convert data from deltas
+                        if sample["width"] == 8//8:
+                            sample["data"] = pcm.signed_to_unsigned_8bit(sample["data"])
                         self.samples.append(sample)
-            exit()
 
 class UnrealEngineUMX:
     """Retrieves module file contained within an Unreal Engine UMX package file."""
