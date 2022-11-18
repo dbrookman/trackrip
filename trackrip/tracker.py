@@ -429,9 +429,13 @@ class FastTracker2XM:
                         # skip volume
                         self.file.seek(1, SEEK_CUR)
                         fine_tune = int.from_bytes(self.file.read(1), "little", signed=True)
-                        # FIX: GET LOOPTYPE FROM FLAG TOO
                         type_flag = int.from_bytes(self.file.read(1), "little")
-                        sample["loop_type"] = LoopType.OFF
+                        if bool(type_flag & 0b00000001):
+                            sample["loop_type"] = LoopType.FORWARD
+                        elif bool(type_flag & 0b00000010):
+                            sample["loop_type"] = LoopType.PING_PONG
+                        else:
+                            sample["loop_type"] = LoopType.OFF
                         sample["width"] = 16//8 if bool(type_flag & 0b00010000) else 8//8
                         # skip pan
                         self.file.seek(1, SEEK_CUR)
