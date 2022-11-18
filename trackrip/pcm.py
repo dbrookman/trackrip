@@ -23,3 +23,14 @@ def signed_to_unsigned_8bit(data):
             signed = byte + 128
         converted.append(signed)
     return converted
+
+def delta_encoding_to_real_data(data, bits=8) -> bytearray:
+    """Converts an array of bytes stored as delta values to real values."""
+    # FIX ME: DELTA FOR 16 BIT WOULD BE DONE DIFF
+    delta_data = bytearray(len(data))
+    old = 0
+    for i in range(len(data)):
+        new = (data[i] + old) % 256
+        delta_data[i] = new
+        old = new
+    return delta_data
