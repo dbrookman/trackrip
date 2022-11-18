@@ -1,4 +1,5 @@
 """For modifying PCM data."""
+import struct
 
 def signed_to_unsigned_8bit(data):
     """
@@ -26,11 +27,20 @@ def signed_to_unsigned_8bit(data):
 
 def delta_encoding_to_real_data(data, bits=8) -> bytearray:
     """Converts an array of bytes stored as delta values to real values."""
-    # FIX ME: DELTA FOR 16 BIT WOULD BE DONE DIFF
     delta_data = bytearray(len(data))
     old = 0
-    for i in range(len(data)):
-        new = (data[i] + old) % 256
-        delta_data[i] = new
-        old = new
+    if bits == 8:
+        for i in range(len(data)):
+            new = (data[i] + old) % 256
+            delta_data[i] = new
+            old = new
+    elif bits == 16:
+        for i in range(len(data) // 2):
+            current_bytes = data[i*2:(i*2)+2]
+            new = (struct.unpack("<H", current_bytes)[0] + old) % 65536
+            new_split = struct.unpack("<BB", new.to_bytes(2, "little"))
+            delta_data[i*2], delta_data[(i*2)+1] = new_split
+            old = new
+    else:
+        raise NotImplementedError("Only supports 8-bit and 16-bit delta encoding.")
     return delta_data

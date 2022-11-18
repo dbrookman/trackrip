@@ -463,6 +463,8 @@ class FastTracker2XM:
                         if sample["width"] == 8//8:
                             sample["data"] = pcm.delta_encoding_to_real_data(sample["data"], 8)
                             sample["data"] = pcm.signed_to_unsigned_8bit(sample["data"])
+                        elif sample["width"] == 16//8:
+                            sample["data"] = pcm.delta_encoding_to_real_data(sample["data"], 16)
                         self.samples.append(sample)
 
 class UnrealEngineUMX:
