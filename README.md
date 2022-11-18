@@ -7,6 +7,7 @@ Extracts samples from various music tracker module formats.
     - __MOD__
     - __S3M__
     - __IT__
+    - __XM__
     - __UMX__
 - Embeds sample loop parameters from the module into exported WAV files.
 
