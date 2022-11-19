@@ -425,7 +425,8 @@ class FastTracker2XM:
 
                         sample["length"] = int.from_bytes(self.file.read(4), "little")
                         sample["loop_start"] = int.from_bytes(self.file.read(4), "little")
-                        sample["loop_end"] = int.from_bytes(self.file.read(4), "little")
+                        loop_length = int.from_bytes(self.file.read(4), "little")
+                        sample["loop_end"] = sample["loop_start"] + loop_length
                         # skip volume
                         self.file.seek(1, SEEK_CUR)
                         fine_tune = int.from_bytes(self.file.read(1), "little", signed=True)
