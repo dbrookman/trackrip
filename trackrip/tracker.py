@@ -471,6 +471,9 @@ class FastTracker2XM:
                             sample["data"] = pcm.decode_delta_encoding_16bit(sample["data"])
                         self.samples.append(sample)
 
+            for i in range(len(self.samples)):
+                self.samples[i]["number"] = i
+
 class UnrealEngineUMX:
     """Retrieves module file contained within an Unreal Engine UMX package file."""
 
