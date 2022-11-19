@@ -438,6 +438,10 @@ class FastTracker2XM:
                         else:
                             sample["loop_type"] = LoopType.OFF
                         sample["width"] = 16//8 if bool(type_flag & 0b00010000) else 8//8
+                        if sample["width"] == 16//8:
+                            sample["loop_start"] //= 2
+                            sample["loop_end"] //= 2
+
                         # skip pan
                         self.file.seek(1, SEEK_CUR)
                         relative_note = int.from_bytes(self.file.read(1), "little", signed=True)
