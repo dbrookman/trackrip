@@ -374,18 +374,18 @@ class FastTracker2XM:
             instrument_count = int.from_bytes(self.file.read(2), "little")
             frequency_table_flag = int.from_bytes(self.file.read(2), "little")
 
-            class FrequencyTable(Enum):
-                """Enumerate Frequency Tables."""
-                AMIGA = 0
-                LINEAR = 1
+            # class FrequencyTable(Enum):
+            #     """Enumerate Frequency Tables."""
+            #     AMIGA = 0
+            #     LINEAR = 1
 
-            if bool(frequency_table_flag & 0b00000001):
-                frequency_table = FrequencyTable.LINEAR
-            else:
-                frequency_table = FrequencyTable.AMIGA
+            # if bool(frequency_table_flag & 0b00000001):
+            #     frequency_table = FrequencyTable.LINEAR
+            # else:
+            #     frequency_table = FrequencyTable.AMIGA
 
-            if frequency_table is FrequencyTable.AMIGA:
-                raise NotImplementedError("Amiga frequency table is not yet supported.")
+            # if frequency_table is FrequencyTable.AMIGA:
+            #     raise NotImplementedError("Amiga frequency table is not yet supported.")
 
             # skip flags, tempo, bpm, pattern order table & any weird extra data
             # jump directly to the first pattern header
@@ -450,17 +450,16 @@ class FastTracker2XM:
                         sample["name"] = self.file.read(22).decode("ascii")
                         instrument_samples.append(sample)
 
-                        if frequency_table is FrequencyTable.LINEAR:
+                        # FIX: theoretically pattern_note gets set just
+                        # after the instrumental header (if it does)
+                        # C-4 will be the default for now
+                        pattern_note = 48 # C-4
+                        real_note = pattern_note + relative_note
 
-                            # FIX: theoretically pattern_note gets set just
-                            # after the instrumental header (if it does)
-                            # C-4 will be the default for now
-                            pattern_note = 48 # C-4
-                            real_note = pattern_note + relative_note
-
-                            period = 7680 - (real_note * 64) - (fine_tune / 2)
-                            frequency = 8363 * 2**((4608 - period) / 768)
-                            sample["rate"] = int(frequency)
+                        # FIX: Add actual Amiga frequency table interpolation
+                        period = 7680 - (real_note * 64) - (fine_tune / 2)
+                        frequency = 8363 * 2**((4608 - period) / 768)
+                        sample["rate"] = int(frequency)
 
                     for sample in instrument_samples:
                         sample["data"] = self.file.read(sample["length"])
