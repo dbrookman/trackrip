@@ -28,7 +28,7 @@ setup(
         "Topic :: Terminals",
         "Topic :: Utilities"
     ],
-    keywords = "tracker music samples mod s3m it umx",
+    keywords = "tracker music samples mod s3m it xm umx",
     packages = ["trackrip"],
     python_requires = ">=3.7",
     entry_points={
