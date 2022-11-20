@@ -414,9 +414,12 @@ class FastTracker2XM:
                 instrument_sample_count = int.from_bytes(self.file.read(2), "little")
 
                 # skip any extra data that's left over in the instrument header
-                # past the regular 29 bytes, like the extra sample header
+                # past the regular 29 bytes.
+                # none of the extra header features can be matched to anything
+                # in a WAVE "smpl" chunk, so we can just skip it all.
                 if instrument_header_size > 29:
                     self.file.seek(instrument_header_size - 29, SEEK_CUR)
+
                 if instrument_sample_count > 0:
                     instrument_samples = []
 
@@ -450,9 +453,7 @@ class FastTracker2XM:
                         sample["name"] = self.file.read(22).decode("ascii")
                         instrument_samples.append(sample)
 
-                        # FIX: theoretically pattern_note gets set just
-                        # after the instrumental header (if it does)
-                        # C-4 will be the default for now
+                        # C-4 is the default
                         pattern_note = 48 # C-4
                         real_note = pattern_note + relative_note
 
