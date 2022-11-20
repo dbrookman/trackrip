@@ -12,7 +12,7 @@ def main():
     """Parses, opens and extracts samples from a tracker module file."""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("mod", help="a valid MOD, S3M or IT file", type=Path)
+    parser.add_argument("mod", help="a valid MOD, S3M, IT or XM file", type=Path)
     parser.add_argument("-o", "--output_dir", type=Path)
 
     args = parser.parse_args()

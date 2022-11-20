@@ -18,13 +18,15 @@ def identify_module(file) -> str:
     Determines the format of the module file provided and returns it as an
     appropriate object.
     """
-    magic = file.read(8)
+    magic = file.read(17)
     if magic[:4] == b"IMPM":
         return ImpulseTrackerIT(file)
     if magic[:8] == b"ziRCONia":
         raise NotImplementedError("MMCMP-compression isn't supported.")
     if magic[:4] == b"\xC1\x83\x2A\x9E":
         return UnrealEngineUMX(file)
+    if magic[:17] == b"Extended Module: ":
+        return FastTracker2XM(file)
 
     file.seek(28)
     sig_one = file.read(2)
@@ -331,6 +333,147 @@ class ImpulseTrackerIT:
     @staticmethod
     def decompress_it_sample(sample_bytes) -> bytes:
         raise NotImplementedError("IT214 sample compression isn't supported yet.")
+
+class FastTracker2XM:
+    """Retrieves sample data from FastTracker 2 XM files."""
+
+    def __init__(self, file):
+            self.file = file
+
+            self.file.seek(17)
+            self.title = self.file.read(20).decode("ascii")
+            print(self.title)
+
+            # skip 0x1A & tracker name
+            self.file.seek(21, SEEK_CUR)
+
+            version = list(file.read(2))
+            # older versions of the XM format below $0104 could break things
+            version_major = version[1]
+            version_minor = version[0]
+            old_version_error = "XM files under version $0104 aren't supported."
+            if version_major < 1:
+                raise NotImplementedError(old_version_error)
+            else:
+                if version_minor < 4:
+                    raise NotImplementedError(old_version_error)
+
+            # this doesn't include the previous bytes, so we add 60 for them
+            xm_header_size = int.from_bytes(self.file.read(4), "little") + 60
+
+            # size of the pattern order table in bytes
+            song_length = int.from_bytes(self.file.read(2), "little")
+            if song_length < 1 or song_length > 256:
+                raise ValueError("XM files must have a length between 1-256.")
+
+            # skip restart position
+            self.file.seek(2, SEEK_CUR)
+
+            channel_count = int.from_bytes(self.file.read(2), "little")
+            pattern_count = int.from_bytes(self.file.read(2), "little")
+            instrument_count = int.from_bytes(self.file.read(2), "little")
+            frequency_table_flag = int.from_bytes(self.file.read(2), "little")
+
+            # class FrequencyTable(Enum):
+            #     """Enumerate Frequency Tables."""
+            #     AMIGA = 0
+            #     LINEAR = 1
+
+            # if bool(frequency_table_flag & 0b00000001):
+            #     frequency_table = FrequencyTable.LINEAR
+            # else:
+            #     frequency_table = FrequencyTable.AMIGA
+
+            # if frequency_table is FrequencyTable.AMIGA:
+            #     raise NotImplementedError("Amiga frequency table is not yet supported.")
+
+            # skip flags, tempo, bpm, pattern order table & any weird extra data
+            # jump directly to the first pattern header
+            self.file.seek(xm_header_size)
+
+            for i in range(pattern_count):
+                pattern_header_size = int.from_bytes(self.file.read(4), "little")
+
+                # skip packing type & rows per pattern
+                self.file.seek(3, SEEK_CUR)
+
+                pattern_data_size = int.from_bytes(self.file.read(2), "little")
+                self.file.seek(pattern_data_size, SEEK_CUR)
+
+                # skip any extra data that's left over in the pattern header
+                # past the regular 9 bytes
+                if pattern_data_size > 9:
+                    self.file.seek(pattern_header_size - 9, SEEK_CUR)
+
+            self.samples = []
+
+            for i in range(instrument_count):
+                instrument_header_size = int.from_bytes(self.file.read(4), "little")
+                # skip instrument type & name
+                self.file.seek(23, SEEK_CUR)
+                instrument_sample_count = int.from_bytes(self.file.read(2), "little")
+
+                # skip any extra data that's left over in the instrument header
+                # past the regular 29 bytes.
+                # none of the extra header features can be matched to anything
+                # in a WAVE "smpl" chunk, so we can just skip it all.
+                if instrument_header_size > 29:
+                    self.file.seek(instrument_header_size - 29, SEEK_CUR)
+
+                if instrument_sample_count > 0:
+                    instrument_samples = []
+
+                    for sample in range(instrument_sample_count):
+                        sample = {}
+
+                        sample["length"] = int.from_bytes(self.file.read(4), "little")
+                        sample["loop_start"] = int.from_bytes(self.file.read(4), "little")
+                        loop_length = int.from_bytes(self.file.read(4), "little")
+                        sample["loop_end"] = sample["loop_start"] + loop_length
+                        # skip volume
+                        self.file.seek(1, SEEK_CUR)
+                        fine_tune = int.from_bytes(self.file.read(1), "little", signed=True)
+                        type_flag = int.from_bytes(self.file.read(1), "little")
+                        if bool(type_flag & 0b00000001):
+                            sample["loop_type"] = LoopType.FORWARD
+                        elif bool(type_flag & 0b00000010):
+                            sample["loop_type"] = LoopType.PING_PONG
+                        else:
+                            sample["loop_type"] = LoopType.OFF
+                        sample["width"] = 16//8 if bool(type_flag & 0b00010000) else 8//8
+                        if sample["width"] == 16//8:
+                            sample["loop_start"] //= 2
+                            sample["loop_end"] //= 2
+
+                        # skip pan
+                        self.file.seek(1, SEEK_CUR)
+                        relative_note = int.from_bytes(self.file.read(1), "little", signed=True)
+                        # skip reserved (ADPCM compression flag?)
+                        self.file.seek(1, SEEK_CUR)
+                        sample["name"] = self.file.read(22).decode("ascii")
+                        instrument_samples.append(sample)
+
+                        # C-4 is the default
+                        pattern_note = 48 # C-4
+                        real_note = pattern_note + relative_note
+
+                        # FIX: Add actual Amiga frequency table interpolation
+                        period = 7680 - (real_note * 64) - (fine_tune / 2)
+                        frequency = 8363 * 2**((4608 - period) / 768)
+                        sample["rate"] = int(frequency)
+
+                    for sample in instrument_samples:
+                        sample["data"] = self.file.read(sample["length"])
+
+                        if sample["width"] == 8//8:
+                            sample["data"] = pcm.decode_delta_encoding_8bit(sample["data"])
+                            sample["data"] = pcm.signed_to_unsigned_8bit(sample["data"])
+                        elif sample["width"] == 16//8:
+                            sample["data"] = pcm.decode_delta_encoding_16bit(sample["data"])
+                        self.samples.append(sample)
+
+            for i in range(len(self.samples)):
+                self.samples[i]["number"] = i
 
 class UnrealEngineUMX:
     """Retrieves module file contained within an Unreal Engine UMX package file."""

@@ -7,7 +7,8 @@ Extracts samples from various music tracker module formats.
     - __MOD__
     - __S3M__
     - __IT__
-    - __UMX__ (containing any of the above)
+    - __XM__
+    - __UMX__
 - Embeds sample loop parameters from the module into exported WAV files.
 
 ## Installation
@@ -34,6 +35,10 @@ Alternatively, you can download the source and run:
 ### Impulse Tracker IT Format
 * [ITTECH.TXT](https://ia600506.us.archive.org/view_archive.php?archive=/4/items/msdos_it214c_shareware/it214c.zip&file=ITTECH.TXT)
 * [IT214 sample compression](https://wiki.multimedia.cx/index.php/Impulse_Tracker#IT214_sample_compression) on MultimediaWiki
+### FastTracker 2 XM (Extended Module) Format
+* [The XM Module Format Description for XM Files Version $0104](https://ftp.modland.com/pub/documents/format_documentation/FastTracker%202%20v2.04%20(.xm).html) by Mr.H, with corrections from Guru & Alfred of Sahara Surfers
+* [The "Complete" XM module format specification](https://github.com/milkytracker/MilkyTracker/blob/master/resources/reference/xm-form.txt) by ccr - v0.81
+* [The Unofficial XM File Format Specification](https://www.celersms.com/doc/XM_file_format.pdf) by Vladimir Kameñar
 ### Unreal Engine UMX Container Format
 * [Unreal Packages](https://web.archive.org/web/19991006025316fw_/http://unreal.epicgames.com/Packages.htm) by Tim Sweeney
 * [Unreal Tournament Package File Format](https://bunnytrack.net/ut-package-format/) by Sapphire
